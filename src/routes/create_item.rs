@@ -5,7 +5,7 @@ use serde::Deserialize;
 use crate::{
     AppState,
     error::AppError,
-    item::{Item, ItemKind},
+    item::{Item, ItemKind, ItemStatus},
     validate,
 };
 
@@ -45,6 +45,8 @@ pub async fn handler(
         title: req.title.unwrap_or_default(),
         url: req.url,
         tags,
+        status: ItemStatus::New,
         created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
+        updated_at: None,
     }))
 }
