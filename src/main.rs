@@ -1,6 +1,7 @@
 use axum::Router;
 use axum::routing::post;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::{env, fs};
 use tokio::net::TcpListener;
 #[cfg(debug_assertions)]
@@ -8,15 +9,17 @@ use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 
 use crate::routes::create_item;
+use crate::storage::Storage;
 
 mod error;
 mod item;
 mod routes;
+mod storage;
 mod validate;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub data_dir: PathBuf,
+    pub storage: Arc<Storage>,
 }
 
 async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,7 +29,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     fs::create_dir_all(&data_dir)?;
 
     let app_state = AppState {
-        data_dir: data_dir.clone(),
+        storage: Arc::new(Storage::new(data_dir.clone())),
     };
 
     let app = Router::new()

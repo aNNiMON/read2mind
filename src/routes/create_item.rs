@@ -27,7 +27,7 @@ pub struct CreateItemRequest {
 }
 
 pub async fn handler(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     Json(req): Json<CreateItemRequest>,
 ) -> Result<Json<Item>, AppError> {
     validate::validate_item(
@@ -38,11 +38,13 @@ pub async fn handler(
     )?;
     let created_at = validate::validate_datetime(req.created_at)?;
     let tags = validate::validate_tags(req.tags)?;
+    let title = req.title.unwrap_or("unknown".to_owned());
+    let item_path = state.storage.item_path(&created_at, &title);
 
     Ok(Json(Item {
         kind: req.kind,
-        path: "/todo".to_string(),
-        title: req.title.unwrap_or_default(),
+        path: item_path,
+        title,
         url: req.url,
         tags,
         status: ItemStatus::New,
