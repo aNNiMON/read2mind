@@ -1,0 +1,16 @@
+proc_list_title: Read Later API
+procs:
+  clippy:
+    shell: cargo clippy --all-features && cargo fmt --check
+    autostart: false
+  check clippy string:
+    shell: cargo clippy -- -Wclippy::str_to_string -Wclippy::needless_pass_by_value -Wclippy::implicit_clone -Wclippy::assigning_clones
+    autostart: false
+  test:
+    shell: cargo test
+    autostart: false
+  server:
+    shell: cargo run
+    autostart: true
+    env:
+      BIND_ADDRESS: "127.0.0.1:8555"
