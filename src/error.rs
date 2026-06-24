@@ -1,0 +1,32 @@
+use axum::{
+    Json,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
+use serde_json::json;
+
+#[derive(Debug)]
+pub enum AppError {
+    InvalidRequest(String),
+}
+
+impl std::fmt::Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let (kind, msg) = match self {
+            AppError::InvalidRequest(m) => ("InvalidRequest", m),
+        };
+        write!(f, "{kind}: {msg}")
+    }
+}
+
+impl std::error::Error for AppError {}
+
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        let (status, error_message) = match self {
+            AppError::InvalidRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+        };
+        let body = json!({ "error": error_message });
+        (status, Json(body)).into_response()
+    }
+}

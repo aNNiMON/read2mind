@@ -1,10 +1,18 @@
 use axum::Router;
+use axum::routing::post;
 use std::path::PathBuf;
 use std::{env, fs};
 use tokio::net::TcpListener;
 #[cfg(debug_assertions)]
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
+
+use crate::routes::create_item;
+
+mod error;
+mod item;
+mod routes;
+mod validate;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -21,7 +29,9 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
         data_dir: data_dir.clone(),
     };
 
-    let app = Router::new().nest_service("/data", ServeDir::new(&data_dir));
+    let app = Router::new()
+        .route("/items", post(create_item::handler))
+        .nest_service("/data", ServeDir::new(&data_dir));
 
     #[cfg(debug_assertions)]
     let app = app.layer(
