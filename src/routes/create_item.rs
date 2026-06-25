@@ -19,6 +19,8 @@ pub struct CreateItemRequest {
     #[serde(default)]
     pub url: Option<String>,
     #[serde(default)]
+    pub author: Option<String>,
+    #[serde(default)]
     pub content: Option<String>,
     #[serde(default)]
     pub tags: Option<String>,
@@ -46,6 +48,7 @@ pub async fn handler(
         path: item_path,
         title,
         url: req.url,
+        author: req.author,
         tags,
         status: ItemStatus::New,
         created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),

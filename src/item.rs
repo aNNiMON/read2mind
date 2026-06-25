@@ -39,6 +39,7 @@ pub struct Item {
     pub path: String,
     pub title: String,
     pub url: Option<String>,
+    pub author: Option<String>,
     pub tags: Vec<String>,
     pub status: ItemStatus,
     pub created_at: String,
