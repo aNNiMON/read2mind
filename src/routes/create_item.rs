@@ -6,6 +6,7 @@ use crate::{
     AppState,
     error::AppError,
     item::{Item, ItemKind, ItemStatus},
+    jobs::fetch_job::FetchJob,
     validate,
 };
 
@@ -40,18 +41,46 @@ pub async fn handler(
     )?;
     let created_at = validate::validate_datetime(req.created_at)?;
     let tags = validate::validate_tags(req.tags)?;
-    let title = req.title.unwrap_or("unknown".to_owned());
-    let item_path = state.storage.item_path(&created_at, &title);
 
-    Ok(Json(Item {
+    let mut item = Item {
         kind: req.kind,
-        path: item_path,
-        title,
-        url: req.url,
-        author: req.author,
+        title: "Untitled".to_owned(),
+        url: req.url.clone(),
         tags,
         status: ItemStatus::New,
         created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
-        updated_at: None,
-    }))
+        ..Default::default()
+    };
+
+    match req.kind {
+        ItemKind::Article => {
+            // Fetch title, author and markdown content
+            let fetch_job = FetchJob::new(req.url.unwrap(), req.content);
+            let result = fetch_job.run().map_err(AppError::FetchError)?;
+            item.title = req.title.or(result.title).unwrap_or(item.title);
+            item.author = req.author.or(result.author);
+        }
+        ItemKind::Video => {
+            // Fetch title, author and transcript
+            let fetch_job = FetchJob::from_url(req.url.unwrap());
+            let result = fetch_job.run().map_err(AppError::FetchError)?;
+            item.title = req.title.or(result.title).unwrap_or(item.title);
+            item.author = req.author.or(result.author);
+        }
+        ItemKind::Bookmark => {
+            // Fetch title
+            let fetch_job = FetchJob::from_url(req.url.unwrap());
+            let result = fetch_job.run().map_err(AppError::FetchError)?;
+            item.title = req.title.or(result.title).unwrap_or(item.title);
+        }
+        ItemKind::Note => {
+            item.title = req.title.unwrap_or(item.title);
+        }
+        ItemKind::Task => {
+            item.title = req.title.unwrap_or(item.title);
+        }
+    };
+    item.path = state.storage.item_path(&created_at, &item.title);
+
+    Ok(Json(item))
 }

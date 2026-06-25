@@ -13,6 +13,7 @@ use crate::storage::Storage;
 
 mod error;
 mod item;
+mod jobs;
 mod routes;
 mod storage;
 mod validate;

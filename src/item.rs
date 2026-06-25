@@ -33,7 +33,7 @@ pub enum ItemStatus {
     Rejected,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 pub struct Item {
     pub kind: ItemKind,
     pub path: String,
