@@ -40,7 +40,7 @@ pub async fn handler(
         req.content.as_ref(),
     )?;
     let created_at = validate::validate_datetime(req.created_at)?;
-    let tags = validate::validate_tags(req.tags)?;
+    let tags = validate::validate_tags(req.tags.as_ref())?;
 
     let mut item = Item {
         kind: req.kind,

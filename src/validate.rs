@@ -59,12 +59,12 @@ pub fn validate_datetime(datetime: Option<String>) -> Result<DateTime<Local>, Ap
 }
 
 /// Validate tags string and return vector of tags
-pub fn validate_tags(tags: Option<String>) -> Result<Vec<String>, AppError> {
+pub fn validate_tags(tags: Option<&String>) -> Result<Vec<String>, AppError> {
     let tags: Vec<String> = tags
         .as_ref()
         .map(|s| {
             s.split(',')
-                .map(|s| s.trim().to_string())
+                .map(|s| s.trim().to_owned())
                 .filter(|s| !s.is_empty())
                 .collect()
         })
