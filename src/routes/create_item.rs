@@ -52,13 +52,15 @@ pub async fn handler(
         ..Default::default()
     };
 
+    let mut content: Option<String> = None;
     match req.kind {
         ItemKind::Article => {
             // Fetch title, author and markdown content
-            let fetch_job = FetchJob::new(req.url.unwrap(), req.content);
+            let fetch_job = FetchJob::new(req.url.unwrap(), req.content.clone());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
             item.title = req.title.or(result.title).unwrap_or(item.title);
             item.author = req.author.or(result.author);
+            content = req.content.or(Some(result.content));
         }
         ItemKind::Video => {
             // Fetch title, author and transcript
@@ -66,6 +68,7 @@ pub async fn handler(
             let result = fetch_job.run().map_err(AppError::FetchError)?;
             item.title = req.title.or(result.title).unwrap_or(item.title);
             item.author = req.author.or(result.author);
+            content = req.content.or(Some(result.content));
         }
         ItemKind::Bookmark => {
             // Fetch title
@@ -75,9 +78,11 @@ pub async fn handler(
         }
         ItemKind::Note => {
             item.title = req.title.unwrap_or(item.title);
+            content = req.content;
         }
         ItemKind::Task => {
             item.title = req.title.unwrap_or(item.title);
+            content = req.content;
         }
     };
     item.path = state.storage.item_path(&created_at, &item.title);
@@ -85,7 +90,12 @@ pub async fn handler(
     // Save metadata.json
     let metadata = ItemMetadata::from(item.clone());
     let dir_path = state.storage.item_full_path(&created_at, &item.title);
-    state.storage.save(&metadata, dir_path)?;
+    state.storage.save_metadata(&metadata, &dir_path)?;
+
+    // Save file with item content
+    if let Some(content) = content {
+        state.storage.save_content(&content, &dir_path)?;
+    }
 
     Ok(Json(item))
 }
