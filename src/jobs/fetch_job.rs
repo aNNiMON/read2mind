@@ -23,7 +23,8 @@ impl FetchJob {
         let mut options = DecruftOptions::default();
         options.url = Some(self.url.clone());
         options.include_replies = false;
-        options.separate_markdown = true;
+        options.separate_markdown = false;
+        options.markdown = true;
         Ok(decruft::parse(&html, &options))
     }
 }
