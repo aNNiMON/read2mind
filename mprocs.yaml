@@ -14,3 +14,6 @@ procs:
     autostart: true
     env:
       BIND_ADDRESS: "127.0.0.1:8555"
+  api:
+    shell: resterm
+    autostart: false

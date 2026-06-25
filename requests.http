@@ -1,0 +1,52 @@
+# @use ./rts/helpers.rts
+
+### New article item fetching title
+# @name New Article item
+POST {{base.url}}/api/items
+Content-Type: application/json
+
+{
+  "url": "https://blog.annimon.com/wezterm-projects/",
+  "kind": "article",
+  "tags": "wezterm, terminal",
+  "created_at": "2026-06-25T10:00:00+03:00"
+}
+
+
+### New bookmark item
+# @name New Bookmark item
+POST {{base.url}}/api/items
+Content-Type: application/json
+
+{
+  "url": "https://blog.annimon.com/wezterm-projects/",
+  "kind": "bookmark",
+  "tags": "wezterm, terminal",
+  "created_at": "2026-06-25T10:00:00+03:00"
+}
+
+
+### New note item
+# @name New Note item
+POST {{base.url}}/api/items
+Content-Type: application/json
+
+{
+  "kind": "note",
+  "title": "New Note",
+  "content": "Note content here",
+  "created_at": "2026-06-25T10:00:00+03:00"
+}
+
+
+### New task item
+# @name New Task item
+POST {{base.url}}/api/items
+Content-Type: application/json
+
+{
+  "kind": "task",
+  "title": "ToDo",
+  "content": "- Item 1\n- Item 2\n- Item 3",
+  "created_at": "2026-06-25T10:00:00+03:00"
+}

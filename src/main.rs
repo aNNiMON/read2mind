@@ -34,7 +34,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let app = Router::new()
-        .route("/items", post(create_item::handler))
+        .route("/api/items", post(create_item::handler))
         .nest_service("/data", ServeDir::new(&data_dir));
 
     #[cfg(debug_assertions)]
