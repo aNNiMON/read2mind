@@ -9,6 +9,7 @@ use serde_json::json;
 pub enum AppError {
     InvalidRequest(String),
     FetchError(String),
+    FsError(String),
 }
 
 impl std::fmt::Display for AppError {
@@ -16,6 +17,7 @@ impl std::fmt::Display for AppError {
         let (kind, msg) = match self {
             AppError::InvalidRequest(m) => ("InvalidRequest", m),
             AppError::FetchError(m) => ("FetchError", m),
+            AppError::FsError(m) => ("FsError", m),
         };
         write!(f, "{kind}: {msg}")
     }
@@ -27,7 +29,8 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
             AppError::InvalidRequest(msg) => (StatusCode::BAD_REQUEST, msg),
-            AppError::FetchError(msg) => (StatusCode::BAD_REQUEST, msg),
+            AppError::FetchError(msg) => (StatusCode::UNPROCESSABLE_ENTITY, msg),
+            AppError::FsError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
         let body = json!({ "error": error_message });
         (status, Json(body)).into_response()

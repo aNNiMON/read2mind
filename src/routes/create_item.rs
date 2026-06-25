@@ -5,7 +5,7 @@ use serde::Deserialize;
 use crate::{
     AppState,
     error::AppError,
-    item::{Item, ItemKind, ItemStatus},
+    item::{Item, ItemKind, ItemMetadata, ItemStatus},
     jobs::fetch_job::FetchJob,
     validate,
 };
@@ -81,6 +81,11 @@ pub async fn handler(
         }
     };
     item.path = state.storage.item_path(&created_at, &item.title);
+
+    // Save metadata.json
+    let metadata = ItemMetadata::from(item.clone());
+    let dir_path = state.storage.item_full_path(&created_at, &item.title);
+    state.storage.save(&metadata, dir_path)?;
 
     Ok(Json(item))
 }

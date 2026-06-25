@@ -33,6 +33,18 @@ pub enum ItemStatus {
     Rejected,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct ItemMetadata {
+    pub kind: ItemKind,
+    pub title: String,
+    pub url: Option<String>,
+    pub tags: Vec<String>,
+    pub author: Option<String>,
+    pub status: ItemStatus,
+    pub created_at: String,
+    pub updated_at: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 pub struct Item {
     pub kind: ItemKind,
@@ -44,4 +56,19 @@ pub struct Item {
     pub status: ItemStatus,
     pub created_at: String,
     pub updated_at: Option<String>,
+}
+
+impl From<Item> for ItemMetadata {
+    fn from(item: Item) -> Self {
+        Self {
+            kind: item.kind,
+            title: item.title,
+            url: item.url,
+            tags: item.tags,
+            author: item.author,
+            status: item.status,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+        }
+    }
 }
