@@ -81,3 +81,47 @@ pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
         .map_err(|e| AppError::DbError(format!("db index commit: {}", e)))?;
     Ok(())
 }
+
+pub fn load_items(db: &DbIndex) -> Result<Vec<Item>, AppError> {
+    let conn = db
+        .lock()
+        .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
+
+    let mut stmt = conn
+        .prepare("SELECT path, kind, title, url, author, status, created_at, updated_at FROM items")
+        .map_err(|e| AppError::DbError(format!("db index prepare items: {}", e)))?;
+    let items = stmt
+        .query_map([], |row| {
+            let path: String = row.get(0)?;
+            let kind: String = row.get(1)?;
+            let status: String = row.get(5)?;
+            let tags = load_tags(&conn, &path).unwrap_or_default();
+            Ok(Item {
+                path,
+                kind: kind.as_str().into(),
+                title: row.get(2)?,
+                url: row.get(3)?,
+                author: row.get(4)?,
+                status: status.as_str().into(),
+                created_at: row.get(6)?,
+                updated_at: row.get(7)?,
+                tags,
+            })
+        })
+        .map_err(|e| AppError::DbError(format!("db index query items: {}", e)))?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| AppError::DbError(format!("db index items row: {}", e)))?;
+    Ok(items)
+}
+
+fn load_tags(conn: &Connection, path: &str) -> Result<Vec<String>, AppError> {
+    let mut stmt = conn
+        .prepare("SELECT tag FROM tags WHERE path = ?1 ORDER BY tag")
+        .map_err(|e| AppError::DbError(format!("db index prepare tags: {}", e)))?;
+    let tags = stmt
+        .query_map([path], |row| row.get::<_, String>(0))
+        .map_err(|e| AppError::DbError(format!("db index query tags: {}", e)))?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| AppError::DbError(format!("db index tags row: {}", e)))?;
+    Ok(tags)
+}

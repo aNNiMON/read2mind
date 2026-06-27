@@ -4,7 +4,7 @@ use axum::{
 };
 use serde::Deserialize;
 
-use crate::{AppState, error::AppError, item::Item};
+use crate::{AppState, db_index, error::AppError, item::Item};
 
 #[derive(Debug, Deserialize, Default)]
 pub struct ListItemsRequest {}
@@ -13,6 +13,6 @@ pub async fn handler(
     State(state): State<AppState>,
     Query(_query): Query<ListItemsRequest>,
 ) -> Result<Json<Vec<Item>>, AppError> {
-    let items = state.storage.list_items()?;
+    let items = db_index::load_items(&state.db)?;
     Ok(Json(items))
 }

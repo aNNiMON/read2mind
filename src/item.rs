@@ -107,6 +107,19 @@ impl fmt::Display for ItemKind {
     }
 }
 
+impl From<&str> for ItemKind {
+    fn from(s: &str) -> Self {
+        match s {
+            "article" => Self::Article,
+            "bookmark" => Self::Bookmark,
+            "note" => Self::Note,
+            "task" => Self::Task,
+            "video" => Self::Video,
+            _ => panic!("unknown item kind: {}", s),
+        }
+    }
+}
+
 impl fmt::Display for ItemStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -121,5 +134,19 @@ impl fmt::Display for ItemStatus {
                 Self::Rejected => "rejected",
             }
         )
+    }
+}
+
+impl From<&str> for ItemStatus {
+    fn from(s: &str) -> Self {
+        match s {
+            "new" => Self::New,
+            "planned" => Self::Planned,
+            "in_progress" => Self::InProgress,
+            "paused" => Self::Paused,
+            "done" => Self::Done,
+            "rejected" => Self::Rejected,
+            _ => panic!("unknown item status: {}", s),
+        }
     }
 }
