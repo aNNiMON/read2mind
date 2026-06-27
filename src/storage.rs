@@ -37,7 +37,7 @@ impl Storage {
     pub fn list_items(&self) -> Result<Vec<Item>, AppError> {
         // data/2026/20260601 Name/metadata.json
         let pattern = format!(
-            "{}/2???/2??????? */{}",
+            "{}/20[2-5][0-9]/20[2-5][0-9][01][0-9][0-3][0-9] */{}",
             self.data_dir.display(),
             METADATA_FILE_NAME
         );
