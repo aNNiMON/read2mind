@@ -1,5 +1,9 @@
 # @use ./rts/helpers.rts
 
+### List items
+# @name List items
+GET {{base.url}}/api/items
+
 ### New article item fetching title
 # @name New Article item
 POST {{base.url}}/api/items

@@ -1,8 +1,12 @@
 use std::{fs, path::PathBuf};
 
 use chrono::{DateTime, Datelike, Local};
+use glob::glob;
 
-use crate::{error::AppError, item::ItemMetadata};
+use crate::{
+    error::AppError,
+    item::{Item, ItemMetadata},
+};
 
 const MAX_FOLDER_LENGTH: usize = 120;
 const METADATA_FILE_NAME: &str = "metadata.json";
@@ -30,6 +34,46 @@ impl Storage {
         self.data_dir.join(year.to_string()).join(item_dir)
     }
 
+    pub fn list_items(&self) -> Result<Vec<Item>, AppError> {
+        // data/2026/20260601 Name/metadata.json
+        let pattern = format!(
+            "{}/2???/2??????? */{}",
+            self.data_dir.display(),
+            METADATA_FILE_NAME
+        );
+        let files = glob(&pattern)
+            .map_err(|e| AppError::FsError(format!("Failed to list files: {}", e)))?;
+        let mut items = Vec::new();
+        for file in files {
+            let path =
+                file.map_err(|e| AppError::FsError(format!("Failed to get file path: {}", e)))?;
+            let item_path = path
+                .parent()
+                .and_then(|p| p.file_name())
+                .and_then(|p| p.to_str())
+                .ok_or_else(|| AppError::FsError("Failed to get parent directory".into()))?;
+            let metadata = self.read_metadata(item_path)?;
+            let item = Item::from_metadata(metadata, item_path.to_string());
+            items.push(item);
+        }
+        Ok(items)
+    }
+
+    /// Read and parse metadata.json file
+    pub fn read_metadata(&self, item_path: &str) -> Result<ItemMetadata, AppError> {
+        let year = item_path.chars().take(4).collect::<String>();
+        let dir = self.data_dir.join(year).join(item_path);
+        let metadata_path = dir.join(METADATA_FILE_NAME);
+        let metadata_json = fs::read_to_string(&metadata_path).map_err(|e| {
+            AppError::FsError(format!("Failed to read {}: {}", METADATA_FILE_NAME, e))
+        })?;
+        let metadata: ItemMetadata = serde_json::from_str(&metadata_json).map_err(|e| {
+            AppError::FsError(format!("Failed to parse {}: {}", METADATA_FILE_NAME, e))
+        })?;
+        Ok(metadata)
+    }
+
+    /// Save metadata.json file
     pub fn save_metadata(&self, metadata: &ItemMetadata, dir: &PathBuf) -> Result<(), AppError> {
         Self::create_dir(dir)?;
         let metadata_path = dir.join(METADATA_FILE_NAME);
@@ -41,6 +85,7 @@ impl Storage {
         Ok(())
     }
 
+    /// Save content.md file
     pub fn save_content(&self, content: &str, dir: &PathBuf) -> Result<(), AppError> {
         Self::create_dir(dir)?;
         let content_path = dir.join(CONTENT_FILE_NAME);

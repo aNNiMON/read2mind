@@ -72,3 +72,19 @@ impl From<Item> for ItemMetadata {
         }
     }
 }
+
+impl Item {
+    pub fn from_metadata(m: ItemMetadata, path: String) -> Self {
+        Self {
+            kind: m.kind,
+            path,
+            title: m.title,
+            url: m.url,
+            tags: m.tags,
+            author: m.author,
+            status: m.status,
+            created_at: m.created_at,
+            updated_at: m.updated_at,
+        }
+    }
+}

@@ -1,5 +1,5 @@
 use axum::Router;
-use axum::routing::post;
+use axum::routing::get;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::{env, fs};
@@ -8,7 +8,6 @@ use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 
-use crate::routes::create_item;
 use crate::storage::Storage;
 
 mod error;
@@ -34,7 +33,10 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let app = Router::new()
-        .route("/api/items", post(create_item::handler))
+        .route(
+            "/api/items",
+            get(routes::list_items::handler).post(routes::create_item::handler),
+        )
         .nest_service("/data", ServeDir::new(&data_dir));
 
     #[cfg(debug_assertions)]
