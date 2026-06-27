@@ -1,15 +1,18 @@
 use axum::Router;
 use axum::routing::get;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::{env, fs};
 use tokio::net::TcpListener;
 #[cfg(debug_assertions)]
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 
+use crate::db_index::DbIndex;
+use crate::jobs::build_index::BuildIndexJob;
 use crate::storage::Storage;
 
+mod db_index;
 mod error;
 mod item;
 mod jobs;
@@ -20,6 +23,7 @@ mod validate;
 #[derive(Clone)]
 pub struct AppState {
     pub storage: Arc<Storage>,
+    pub db: DbIndex,
 }
 
 async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,7 +34,10 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
 
     let app_state = AppState {
         storage: Arc::new(Storage::new(data_dir.clone())),
+        db: Arc::new(Mutex::new(db_index::open()?)),
     };
+
+    BuildIndexJob::new(&app_state.storage, &app_state.db).run()?;
 
     let app = Router::new()
         .route(

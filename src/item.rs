@@ -1,3 +1,5 @@
+use core::fmt;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
@@ -86,5 +88,38 @@ impl Item {
             created_at: m.created_at,
             updated_at: m.updated_at,
         }
+    }
+}
+
+impl fmt::Display for ItemKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Article => "article",
+                Self::Bookmark => "bookmark",
+                Self::Note => "note",
+                Self::Task => "task",
+                Self::Video => "video",
+            }
+        )
+    }
+}
+
+impl fmt::Display for ItemStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::New => "new",
+                Self::Planned => "planned",
+                Self::InProgress => "in_progress",
+                Self::Paused => "paused",
+                Self::Done => "done",
+                Self::Rejected => "rejected",
+            }
+        )
     }
 }

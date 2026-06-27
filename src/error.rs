@@ -10,6 +10,7 @@ pub enum AppError {
     InvalidRequest(String),
     FetchError(String),
     FsError(String),
+    DbError(String),
 }
 
 impl std::fmt::Display for AppError {
@@ -18,6 +19,7 @@ impl std::fmt::Display for AppError {
             AppError::InvalidRequest(m) => ("InvalidRequest", m),
             AppError::FetchError(m) => ("FetchError", m),
             AppError::FsError(m) => ("FsError", m),
+            AppError::DbError(m) => ("DbError", m),
         };
         write!(f, "{kind}: {msg}")
     }
@@ -31,6 +33,7 @@ impl IntoResponse for AppError {
             AppError::InvalidRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::FetchError(msg) => (StatusCode::UNPROCESSABLE_ENTITY, msg),
             AppError::FsError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+            AppError::DbError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
         let body = json!({ "error": error_message });
         (status, Json(body)).into_response()
