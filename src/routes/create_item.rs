@@ -60,7 +60,7 @@ pub async fn handler(
             let result = fetch_job.run().map_err(AppError::FetchError)?;
             item.title = req.title.or(result.title).unwrap_or(item.title);
             item.author = req.author.or(result.author);
-            content = req.content.or(Some(result.content));
+            content = Some(result.content);
         }
         ItemKind::Video => {
             // Fetch title, author and transcript
