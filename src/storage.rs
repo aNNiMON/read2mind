@@ -53,7 +53,7 @@ impl Storage {
                 .and_then(|p| p.to_str())
                 .ok_or_else(|| AppError::FsError("Failed to get parent directory".into()))?;
             let metadata = self.read_metadata(item_path)?;
-            let item = Item::from_metadata(metadata, item_path.to_string());
+            let item = Item::from_metadata(metadata, item_path.to_owned());
             items.push(item);
         }
         Ok(items)

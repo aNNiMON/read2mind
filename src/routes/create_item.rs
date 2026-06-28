@@ -3,7 +3,7 @@ use chrono::SecondsFormat;
 use serde::Deserialize;
 
 use crate::{
-    AppState,
+    AppState, db_index,
     error::AppError,
     item::{Item, ItemKind, ItemMetadata, ItemStatus},
     jobs::fetch_job::FetchJob,
@@ -96,6 +96,9 @@ pub async fn handler(
     if let Some(content) = content {
         state.storage.save_content(&content, &dir_path)?;
     }
+
+    // Update index
+    db_index::add_item(&state.db, &item)?;
 
     Ok(Json(item))
 }

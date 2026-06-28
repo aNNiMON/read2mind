@@ -1,3 +1,4 @@
+use core::slice;
 use std::sync::{Arc, Mutex};
 
 use rusqlite::Connection;
@@ -41,6 +42,10 @@ fn init_schema(conn: &Connection) -> Result<(), AppError> {
     .map_err(|e| AppError::DbError(format!("Failed to init index schema: {}", e)))
 }
 
+pub fn add_item(db: &DbIndex, item: &Item) -> Result<(), AppError> {
+    add_items(db, slice::from_ref(item))
+}
+
 pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
     let mut conn = db
         .lock()
@@ -69,9 +74,15 @@ pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
         )
         .map_err(|e| AppError::DbError(format!("db index add item {}: {}", item.path, e)))?;
 
+        tx.execute(
+            "DELETE FROM tags WHERE path = ?1",
+            rusqlite::params![item.path],
+        )
+        .map_err(|e| AppError::DbError(format!("db index delete tags {}: {}", item.path, e)))?;
+
         for tag in &item.tags {
             tx.execute(
-                "INSERT OR IGNORE INTO tags (path, tag) VALUES (?1, ?2)",
+                "INSERT INTO tags (path, tag) VALUES (?1, ?2)",
                 rusqlite::params![item.path, tag],
             )
             .map_err(|e| AppError::DbError(format!("db index add tag {}: {}", tag, e)))?;
