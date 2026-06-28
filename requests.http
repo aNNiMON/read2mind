@@ -36,9 +36,21 @@ GET {{base.url}}/api/items?status=done
 # @name List items by author
 GET {{base.url}}/api/items?author=aNNiMON
 
+### List items with tags
+# @name List items with tags
+GET {{base.url}}/api/items?tags=geotagging
+
+### List items excluding tags
+# @name List items excluding tags
+GET {{base.url}}/api/items?tags=!geotagging
+
 ### List 2 items with 1 offset
 # @name List items with offset and limit
 GET {{base.url}}/api/items?limit=2&offset=1
+
+### List items multiple filters
+# @name List items with multiple filters
+GET {{base.url}}/api/items?kind=article&status=new&author=aNNiMON&tags=rust,geotagging,maps,!openlayers,!docker&limit=5
 
 
 ### New article item fetching title

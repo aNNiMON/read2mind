@@ -12,6 +12,8 @@ pub struct ItemsFilter {
     pub kind: Option<String>,
     pub status: Option<String>,
     pub author: Option<String>,
+    pub include_tags: Vec<String>,
+    pub exclude_tags: Vec<String>,
     pub limit: u32,
     pub offset: u32,
 }
@@ -124,6 +126,38 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
     if let Some(author) = &filter.author {
         sql.push_str(" AND author = ?");
         params.push(Box::new(author));
+    }
+
+    if !filter.include_tags.is_empty() {
+        let placeholders = std::iter::repeat_n("?", filter.include_tags.len())
+            .collect::<Vec<_>>()
+            .join(", ");
+        sql.push_str(&format!(
+            " AND path IN (SELECT path FROM tags t WHERE tag IN ({}))",
+            placeholders,
+        ));
+        params.extend(
+            filter
+                .include_tags
+                .iter()
+                .map(|t| Box::new(t) as Box<dyn ToSql>),
+        );
+    }
+
+    if !filter.exclude_tags.is_empty() {
+        let placeholders = std::iter::repeat_n("?", filter.exclude_tags.len())
+            .collect::<Vec<_>>()
+            .join(", ");
+        sql.push_str(&format!(
+            " AND path NOT IN (SELECT path FROM tags t WHERE tag IN ({}))",
+            placeholders,
+        ));
+        params.extend(
+            filter
+                .exclude_tags
+                .iter()
+                .map(|t| Box::new(t) as Box<dyn ToSql>),
+        );
     }
 
     sql.push_str(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
