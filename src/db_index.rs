@@ -99,7 +99,12 @@ pub fn load_items(db: &DbIndex) -> Result<Vec<Item>, AppError> {
         .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
 
     let mut stmt = conn
-        .prepare("SELECT path, kind, title, url, author, status, created_at, updated_at FROM items")
+        .prepare(
+            r#"
+            SELECT path, kind, title, url, author, status, created_at, updated_at FROM items
+            ORDER BY created_at DESC
+        "#,
+        )
         .map_err(|e| AppError::DbError(format!("db index prepare items: {}", e)))?;
     let items = stmt
         .query_map([], |row| {
