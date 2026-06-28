@@ -14,6 +14,7 @@ use crate::{
 #[derive(Debug, Deserialize, Default)]
 pub struct ListItemsRequest {
     pub kind: Option<String>,
+    pub status: Option<String>,
     pub offset: Option<u32>,
     pub limit: Option<u32>,
 }
@@ -22,6 +23,7 @@ impl From<ListItemsRequest> for ItemsFilter {
     fn from(value: ListItemsRequest) -> Self {
         Self {
             kind: value.kind,
+            status: value.status,
             limit: value.limit.unwrap_or(50),
             offset: value.offset.unwrap_or_default(),
         }

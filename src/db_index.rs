@@ -10,6 +10,7 @@ pub type DbIndex = Arc<Mutex<Connection>>;
 #[derive(Debug, Clone, Default)]
 pub struct ItemsFilter {
     pub kind: Option<String>,
+    pub status: Option<String>,
     pub limit: u32,
     pub offset: u32,
 }
@@ -113,6 +114,10 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
     if let Some(kind) = &filter.kind {
         sql.push_str(" AND kind = ?");
         params.push(Box::new(kind));
+    }
+    if let Some(status) = &filter.status {
+        sql.push_str(" AND status = ?");
+        params.push(Box::new(status));
     }
 
     sql.push_str(" ORDER BY created_at DESC LIMIT ? OFFSET ?");

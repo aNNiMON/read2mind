@@ -24,6 +24,14 @@ GET {{base.url}}/api/items?kind=task
 # @name List videos only
 GET {{base.url}}/api/items?kind=video
 
+### List new items
+# @name List new items
+GET {{base.url}}/api/items?status=new
+
+### List done items
+# @name List done items
+GET {{base.url}}/api/items?status=done
+
 ### List 2 items with 1 offset
 # @name List items with offset and limit
 GET {{base.url}}/api/items?limit=2&offset=1
