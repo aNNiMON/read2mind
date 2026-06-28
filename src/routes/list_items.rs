@@ -15,6 +15,7 @@ use crate::{
 pub struct ListItemsRequest {
     pub kind: Option<String>,
     pub status: Option<String>,
+    pub author: Option<String>,
     pub offset: Option<u32>,
     pub limit: Option<u32>,
 }
@@ -24,6 +25,7 @@ impl From<ListItemsRequest> for ItemsFilter {
         Self {
             kind: value.kind,
             status: value.status,
+            author: value.author,
             limit: value.limit.unwrap_or(50),
             offset: value.offset.unwrap_or_default(),
         }

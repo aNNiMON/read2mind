@@ -11,6 +11,7 @@ pub type DbIndex = Arc<Mutex<Connection>>;
 pub struct ItemsFilter {
     pub kind: Option<String>,
     pub status: Option<String>,
+    pub author: Option<String>,
     pub limit: u32,
     pub offset: u32,
 }
@@ -43,6 +44,7 @@ fn init_schema(conn: &Connection) -> Result<(), AppError> {
         );
         CREATE INDEX IF NOT EXISTS idx_items_kind ON items(kind);
         CREATE INDEX IF NOT EXISTS idx_items_status ON items(status);
+        CREATE INDEX IF NOT EXISTS idx_items_author ON items(author);
         CREATE INDEX IF NOT EXISTS idx_items_created_at ON items(created_at);
         CREATE INDEX IF NOT EXISTS idx_tags_tag ON tags(tag);
         "#,
@@ -118,6 +120,10 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
     if let Some(status) = &filter.status {
         sql.push_str(" AND status = ?");
         params.push(Box::new(status));
+    }
+    if let Some(author) = &filter.author {
+        sql.push_str(" AND author = ?");
+        params.push(Box::new(author));
     }
 
     sql.push_str(" ORDER BY created_at DESC LIMIT ? OFFSET ?");

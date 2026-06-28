@@ -32,6 +32,10 @@ GET {{base.url}}/api/items?status=new
 # @name List done items
 GET {{base.url}}/api/items?status=done
 
+### List items by author
+# @name List items by author
+GET {{base.url}}/api/items?author=aNNiMON
+
 ### List 2 items with 1 offset
 # @name List items with offset and limit
 GET {{base.url}}/api/items?limit=2&offset=1
