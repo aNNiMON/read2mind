@@ -1,11 +1,18 @@
 use core::slice;
 use std::sync::{Arc, Mutex};
 
-use rusqlite::Connection;
+use rusqlite::{Connection, ToSql};
 
 use crate::{error::AppError, item::Item};
 
 pub type DbIndex = Arc<Mutex<Connection>>;
+
+#[derive(Debug, Clone, Default)]
+pub struct ItemsFilter {
+    pub kind: Option<String>,
+    pub limit: u32,
+    pub offset: u32,
+}
 
 /// Opens in-memory append-only index of items.
 pub fn open() -> Result<Connection, AppError> {
@@ -93,21 +100,31 @@ pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
     Ok(())
 }
 
-pub fn load_items(db: &DbIndex) -> Result<Vec<Item>, AppError> {
+pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppError> {
     let conn = db
         .lock()
         .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
 
+    let mut sql =
+        "SELECT path, kind, title, url, author, status, created_at, updated_at FROM items WHERE 1=1"
+            .to_owned();
+    let mut params: Vec<Box<dyn ToSql>> = Vec::new();
+
+    if let Some(kind) = &filter.kind {
+        sql.push_str(" AND kind = ?");
+        params.push(Box::new(kind));
+    }
+
+    sql.push_str(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    params.push(Box::new(filter.limit));
+    params.push(Box::new(filter.offset));
+
     let mut stmt = conn
-        .prepare(
-            r#"
-            SELECT path, kind, title, url, author, status, created_at, updated_at FROM items
-            ORDER BY created_at DESC
-        "#,
-        )
+        .prepare(&sql)
         .map_err(|e| AppError::DbError(format!("db index prepare items: {}", e)))?;
+    let param_refs: Vec<&dyn ToSql> = params.iter().map(|p| p.as_ref()).collect();
     let items = stmt
-        .query_map([], |row| {
+        .query_map(param_refs.as_slice(), |row| {
             let path: String = row.get(0)?;
             let kind: String = row.get(1)?;
             let status: String = row.get(5)?;

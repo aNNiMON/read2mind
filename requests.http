@@ -4,6 +4,31 @@
 # @name List items
 GET {{base.url}}/api/items
 
+### List articles only
+# @name List articles only
+GET {{base.url}}/api/items?kind=article
+
+### List bookmarks only
+# @name List bookmarks only
+GET {{base.url}}/api/items?kind=bookmark
+
+### List notes only
+# @name List notes only
+GET {{base.url}}/api/items?kind=note
+
+### List tasks only
+# @name List tasks only
+GET {{base.url}}/api/items?kind=task
+
+### List videos only
+# @name List videos only
+GET {{base.url}}/api/items?kind=video
+
+### List 2 items with 1 offset
+# @name List items with offset and limit
+GET {{base.url}}/api/items?limit=2&offset=1
+
+
 ### New article item fetching title
 # @name New Article item
 POST {{base.url}}/api/items
