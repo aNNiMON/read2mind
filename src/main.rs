@@ -1,5 +1,5 @@
 use axum::Router;
-use axum::routing::get;
+use axum::routing::{get, put};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::{env, fs};
@@ -43,6 +43,10 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
         .route(
             "/api/items",
             get(routes::list_items::handler).post(routes::create_item::handler),
+        )
+        .route(
+            "/api/items/{path}/status",
+            put(routes::update_status::handler),
         )
         .nest_service("/data", ServeDir::new(&data_dir));
 

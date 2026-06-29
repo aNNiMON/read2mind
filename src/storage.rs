@@ -74,7 +74,29 @@ impl Storage {
     }
 
     /// Save metadata.json file
-    pub fn save_metadata(&self, metadata: &ItemMetadata, dir: &PathBuf) -> Result<(), AppError> {
+    pub fn save_metadata(&self, metadata: &ItemMetadata, item_path: &str) -> Result<(), AppError> {
+        let year = item_path.chars().take(4).collect::<String>();
+        let dir = self.data_dir.join(year).join(item_path);
+        self.save_metadata_by_dir(metadata, &dir)
+    }
+
+    /// Save metadata.json file by date and title
+    pub fn save_metadata_by_date_and_title(
+        &self,
+        metadata: &ItemMetadata,
+        dt: &DateTime<Local>,
+        title: &str,
+    ) -> Result<(), AppError> {
+        let dir = self.item_full_path(dt, title);
+        self.save_metadata_by_dir(metadata, &dir)
+    }
+
+    /// Save metadata.json file by directory
+    pub fn save_metadata_by_dir(
+        &self,
+        metadata: &ItemMetadata,
+        dir: &PathBuf,
+    ) -> Result<(), AppError> {
         Self::create_dir(dir)?;
         let metadata_path = dir.join(METADATA_FILE_NAME);
         let metadata_json = serde_json::to_string_pretty(&metadata)

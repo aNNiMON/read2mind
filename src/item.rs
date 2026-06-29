@@ -28,6 +28,7 @@ pub enum ItemStatus {
     Planned,
     /// In progress or reading, watching
     InProgress,
+    /// Item is paused
     Paused,
     /// Item is done
     Done,

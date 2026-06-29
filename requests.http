@@ -103,3 +103,22 @@ Content-Type: application/json
   "content": "- Item 1\n- Item 2\n- Item 3",
   "created_at": "2026-06-25T10:00:00+03:00"
 }
+
+
+### Update item status to in_progress
+# @name Update item status to in_progress
+PUT {{base.url}}/api/items/20260625 WezTerm projects selector/status
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+### Update item status to new
+# @name Update item status to new
+PUT {{base.url}}/api/items/20260625 WezTerm projects selector/status
+Content-Type: application/json
+
+{
+  "status": "new"
+}

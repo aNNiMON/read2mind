@@ -90,7 +90,7 @@ pub async fn handler(
     // Save metadata.json
     let metadata = ItemMetadata::from(item.clone());
     let dir_path = state.storage.item_full_path(&created_at, &item.title);
-    state.storage.save_metadata(&metadata, &dir_path)?;
+    state.storage.save_metadata_by_dir(&metadata, &dir_path)?;
 
     // Save file with item content
     if let Some(content) = content {
