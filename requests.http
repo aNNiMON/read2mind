@@ -122,3 +122,12 @@ Content-Type: application/json
 {
   "status": "new"
 }
+
+### Update item tags
+# @name Update item tags
+PUT {{base.url}}/api/items/20260625 WezTerm projects selector/tags
+Content-Type: application/json
+
+{
+  "tags": "wezterm, terminal, updated"
+}

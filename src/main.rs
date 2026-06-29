@@ -48,6 +48,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             "/api/items/{path}/status",
             put(routes::update_status::handler),
         )
+        .route("/api/items/{path}/tags", put(routes::update_tags::handler))
         .nest_service("/data", ServeDir::new(&data_dir));
 
     #[cfg(debug_assertions)]
