@@ -1,6 +1,8 @@
+use std::path::{Component, Path};
+
 use chrono::{DateTime, Local};
 
-use crate::{error::AppError, item::ItemKind};
+use crate::{attachment, error::AppError, item::ItemKind};
 
 /// Validates item fields according to item kind
 pub fn validate_item(
@@ -70,4 +72,39 @@ pub fn validate_tags(tags: Option<&String>) -> Result<Vec<String>, AppError> {
         })
         .unwrap_or_default();
     Ok(tags)
+}
+
+/// Validates filename of an attachment
+pub fn validate_attachment_filename(filename: &str) -> Result<&str, AppError> {
+    let filename = filename.trim();
+    if filename.is_empty() {
+        return Err(AppError::InvalidRequest(
+            "filename cannot be empty".to_owned(),
+        ));
+    }
+
+    let path = Path::new(filename);
+    if path.is_absolute()
+        || path.components().count() != 1
+        || path
+            .components()
+            .any(|component| !matches!(component, Component::Normal(_)))
+    {
+        return Err(AppError::InvalidRequest(format!(
+            "Invalid filename: {}",
+            filename
+        )));
+    }
+
+    if path
+        .components()
+        .any(|component| component.as_os_str() == attachment::METADATA_FILE_NAME)
+    {
+        return Err(AppError::InvalidRequest(format!(
+            "Reserved filename {}",
+            filename
+        )));
+    }
+
+    Ok(filename)
 }

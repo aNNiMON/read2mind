@@ -137,3 +137,15 @@ Content-Type: application/json
 # @name List item attachments
 GET {{base.url}}/api/items/20260625 WezTerm projects selector/attachments
 
+### Add note.md attachment
+### curl -X POST "http://127.0.0.1:8555/api/items/20260625%20WezTerm%20projects%20selector/attachments" -F 'file=@mprocs.yaml;filename=metadata.json;type=text/yaml'
+# @name Add note.md attachment
+POST {{base.url}}/api/items/20260625 WezTerm projects selector/attachments
+Content-Type: multipart/form-data; boundary=resterm-415585af9536eb485a5ca2c5
+
+--resterm-415585af9536eb485a5ca2c5
+Content-Disposition: form-data; name="file"; filename="note.md"
+Content-Type: text/markdown
+
+@mprocs.yaml
+--resterm-415585af9536eb485a5ca2c5--

@@ -128,14 +128,34 @@ impl Storage {
         })
     }
 
+    /// Save attachment file
+    pub fn save_attachment_by_item_path(
+        &self,
+        item_path: &str,
+        filename: &str,
+        bytes: &[u8],
+    ) -> Result<(), AppError> {
+        let dir = self.item_dir(item_path);
+        self.save_attachment(&dir, filename, bytes)
+    }
+
+    /// Save attachment file
+    pub fn save_attachment(
+        &self,
+        dir: &PathBuf,
+        filename: &str,
+        bytes: &[u8],
+    ) -> Result<(), AppError> {
+        Self::create_dir(dir)?;
+        let path = dir.join(filename);
+        fs::write(&path, bytes)
+            .map_err(|e| AppError::FsError(format!("Failed to write {}: {}", filename, e)))?;
+        Ok(())
+    }
+
     /// Save content.md file
     pub fn save_content(&self, content: &str, dir: &PathBuf) -> Result<(), AppError> {
-        Self::create_dir(dir)?;
-        let content_path = dir.join(CONTENT_FILE_NAME);
-        fs::write(&content_path, content).map_err(|e| {
-            AppError::FsError(format!("Failed to write {}: {}", CONTENT_FILE_NAME, e))
-        })?;
-        Ok(())
+        self.save_attachment(dir, CONTENT_FILE_NAME, content.as_bytes())
     }
 
     /// Sanitize title for folder name, limiting to 120 characters
