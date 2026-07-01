@@ -131,3 +131,9 @@ Content-Type: application/json
 {
   "tags": "wezterm, terminal, updated"
 }
+
+
+### List item attachments
+# @name List item attachments
+GET {{base.url}}/api/items/20260625 WezTerm projects selector/attachments
+

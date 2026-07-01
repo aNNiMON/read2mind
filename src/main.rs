@@ -12,6 +12,7 @@ use crate::db_index::DbIndex;
 use crate::jobs::build_index::BuildIndexJob;
 use crate::storage::Storage;
 
+mod attachment;
 mod db_index;
 mod error;
 mod item;
@@ -43,6 +44,10 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
         .route(
             "/api/items",
             get(routes::list_items::handler).post(routes::create_item::handler),
+        )
+        .route(
+            "/api/items/{path}/attachments",
+            get(routes::list_attachments::handler),
         )
         .route(
             "/api/items/{path}/status",

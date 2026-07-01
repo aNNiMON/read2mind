@@ -1,19 +1,24 @@
-use std::{fs, path::PathBuf};
+use std::{collections::HashSet, fs, path::PathBuf};
 
 use chrono::{DateTime, Datelike, Local};
 use glob::glob;
 
 use crate::{
+    attachment::{CONTENT_FILE_NAME, METADATA_FILE_NAME},
     error::AppError,
     item::{Item, ItemMetadata},
 };
 
 const MAX_FOLDER_LENGTH: usize = 120;
-const METADATA_FILE_NAME: &str = "metadata.json";
-const CONTENT_FILE_NAME: &str = "content.md";
 
 pub struct Storage {
     data_dir: PathBuf,
+}
+
+#[derive(Debug)]
+pub struct AttachmentsList {
+    pub path: String,
+    pub attachments: HashSet<String>,
 }
 
 impl Storage {
@@ -61,9 +66,7 @@ impl Storage {
 
     /// Read and parse metadata.json file
     pub fn read_metadata(&self, item_path: &str) -> Result<ItemMetadata, AppError> {
-        let year = item_path.chars().take(4).collect::<String>();
-        let dir = self.data_dir.join(year).join(item_path);
-        let metadata_path = dir.join(METADATA_FILE_NAME);
+        let metadata_path = self.item_dir(item_path).join(METADATA_FILE_NAME);
         let metadata_json = fs::read_to_string(&metadata_path).map_err(|e| {
             AppError::FsError(format!("Failed to read {}: {}", METADATA_FILE_NAME, e))
         })?;
@@ -75,8 +78,7 @@ impl Storage {
 
     /// Save metadata.json file
     pub fn save_metadata(&self, metadata: &ItemMetadata, item_path: &str) -> Result<(), AppError> {
-        let year = item_path.chars().take(4).collect::<String>();
-        let dir = self.data_dir.join(year).join(item_path);
+        let dir = self.item_dir(item_path);
         self.save_metadata_by_dir(metadata, &dir)
     }
 
@@ -105,6 +107,25 @@ impl Storage {
             AppError::FsError(format!("Failed to write {}: {}", METADATA_FILE_NAME, e))
         })?;
         Ok(())
+    }
+
+    pub fn list_attachments(&self, item_path: &str) -> Result<AttachmentsList, AppError> {
+        let dir = self.item_dir(item_path);
+        let mut attachments: HashSet<String> = HashSet::new();
+        let entries = fs::read_dir(&dir)
+            .map_err(|e| AppError::FsError(format!("Failed to read directory: {}", e)))?;
+        for entry in entries {
+            let entry =
+                entry.map_err(|e| AppError::FsError(format!("Failed to read directory: {}", e)))?;
+            let fname = entry.file_name();
+            let fname_str = fname.to_string_lossy();
+            attachments.insert(fname_str.to_string());
+        }
+        attachments.remove(METADATA_FILE_NAME);
+        Ok(AttachmentsList {
+            path: dir.to_string_lossy().to_string(),
+            attachments,
+        })
     }
 
     /// Save content.md file
@@ -136,5 +157,11 @@ impl Storage {
     fn create_dir(dir: &PathBuf) -> Result<(), AppError> {
         fs::create_dir_all(dir)
             .map_err(|e| AppError::FsError(format!("Failed to create directory {:?}: {}", dir, e)))
+    }
+
+    /// Get the directory path of an item from its identifier
+    fn item_dir(&self, item_path: &str) -> PathBuf {
+        let year = item_path.chars().take(4).collect::<String>();
+        self.data_dir.join(year).join(item_path)
     }
 }
