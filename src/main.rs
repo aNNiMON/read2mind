@@ -8,11 +8,13 @@ use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
 
+use crate::config::Config;
 use crate::db_index::DbIndex;
 use crate::jobs::build_index::BuildIndexJob;
 use crate::storage::Storage;
 
 mod attachment;
+mod config;
 mod db_index;
 mod error;
 mod item;
@@ -23,17 +25,20 @@ mod validate;
 
 #[derive(Clone)]
 pub struct AppState {
+    pub config: Arc<Config>,
     pub storage: Arc<Storage>,
     pub db: DbIndex,
 }
 
 async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
-    let bind_address = env::var("BIND_ADDRESS").expect("BIND_ADDRESS not set");
+    let config = Config::load()?;
+    let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| config.bind_address.clone());
 
     let data_dir = PathBuf::from("data");
     fs::create_dir_all(&data_dir)?;
 
     let app_state = AppState {
+        config: Arc::new(config),
         storage: Arc::new(Storage::new(data_dir.clone())),
         db: Arc::new(Mutex::new(db_index::open()?)),
     };
