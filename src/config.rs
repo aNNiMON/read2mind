@@ -5,12 +5,42 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub bind_address: String,
+    #[serde(default)]
+    pub ai: Option<AiConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AiConfig {
+    pub base_url: String,
+    pub api_key_env: String,
+    #[serde(default)]
+    pub summarize_prompt: Option<String>,
+    #[serde(default)]
+    pub summarize_model: Option<String>,
+    #[serde(default)]
+    pub mindmap_prompt: Option<String>,
+    #[serde(default)]
+    pub mindmap_model: Option<String>,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             bind_address: "127.0.0.1:8555".to_owned(),
+            ai: Some(Default::default()),
+        }
+    }
+}
+
+impl Default for AiConfig {
+    fn default() -> Self {
+        Self {
+            base_url: "https://api.openai.com/v1".to_owned(),
+            api_key_env: "OPENAI_API_KEY".to_owned(),
+            summarize_prompt: Default::default(),
+            summarize_model: Some("gpt-5-nano".to_owned()),
+            mindmap_prompt: Default::default(),
+            mindmap_model: Some("gpt-5-nano".to_owned()),
         }
     }
 }
