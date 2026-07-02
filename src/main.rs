@@ -1,5 +1,6 @@
 use axum::Router;
 use axum::routing::{get, put};
+use reqwest::Client;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::{env, fs};
@@ -25,22 +26,26 @@ mod validate;
 
 #[derive(Clone)]
 pub struct AppState {
+    pub client: Client,
     pub config: Arc<Config>,
-    pub storage: Arc<Storage>,
     pub db: DbIndex,
+    pub storage: Arc<Storage>,
 }
 
 async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::load()?;
     let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| config.bind_address.clone());
 
+    let client = Client::builder().build()?;
+
     let data_dir = PathBuf::from("data");
     fs::create_dir_all(&data_dir)?;
 
     let app_state = AppState {
+        client,
         config: Arc::new(config),
-        storage: Arc::new(Storage::new(data_dir.clone())),
         db: Arc::new(Mutex::new(db_index::open()?)),
+        storage: Arc::new(Storage::new(data_dir.clone())),
     };
 
     BuildIndexJob::new(&app_state.storage, &app_state.db).run()?;
@@ -58,6 +63,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             "/api/items/{path}/status",
             put(routes::update_status::handler),
         )
+        .route("/api/items/{path}/ai", put(routes::ai_generate::handler))
         .route("/api/items/{path}/tags", put(routes::update_tags::handler))
         .nest_service("/data", ServeDir::new(&data_dir));
 

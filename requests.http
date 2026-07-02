@@ -132,6 +132,23 @@ Content-Type: application/json
   "tags": "wezterm, terminal, updated"
 }
 
+### Generate AI summary
+# @name Generate AI summary
+PUT {{base.url}}/api/items/20260625 WezTerm projects selector/ai
+Content-Type: application/json
+
+{
+  "feature": "summary"
+}
+
+### Generate AI mindmap
+# @name Generate AI mindmap
+PUT {{base.url}}/api/items/20260625 WezTerm projects selector/ai
+Content-Type: application/json
+
+{
+  "feature": "mindmap"
+}
 
 ### List item attachments
 # @name List item attachments
