@@ -4,12 +4,18 @@ use axum::{
 };
 use serde::Serialize;
 
-use crate::{AppState, attachment::CONTENT_FILE_NAME, error::AppError, storage::AttachmentsList};
+use crate::{
+    AppState,
+    attachment::{CONTENT_FILE_NAME, NOTE_FILE_NAME},
+    error::AppError,
+    storage::AttachmentsList,
+};
 
 #[derive(Debug, Serialize)]
 pub struct AttachmentsResponse {
     pub path: String,
     pub content: bool,
+    pub note: bool,
     pub attachments: Vec<String>,
 }
 
@@ -19,6 +25,7 @@ impl From<AttachmentsList> for AttachmentsResponse {
         Self {
             path: value.path,
             content: att.remove(CONTENT_FILE_NAME),
+            note: att.remove(NOTE_FILE_NAME),
             attachments: att.into_iter().collect(),
         }
     }
