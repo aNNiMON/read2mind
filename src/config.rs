@@ -47,10 +47,10 @@ impl Default for AiConfig {
 
 impl Config {
     pub fn load() -> Result<Self, Box<dyn std::error::Error>> {
-        let config_path = Path::new("config.json");
+        let config_path = Path::new("config.toml");
         if config_path.exists() {
             let content = fs::read_to_string(config_path)?;
-            let config: Config = serde_json::from_str(&content)?;
+            let config: Config = toml::from_str(&content)?;
             Ok(config)
         } else {
             Ok(Self::default())
