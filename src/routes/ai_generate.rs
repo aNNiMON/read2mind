@@ -46,22 +46,17 @@ pub async fn handler(
         }
     };
 
-    let att = state.storage.list_attachments(&path)?;
-    let content = att
-        .attachments
-        .get(filename)
-        .ok_or_else(|| AppError::FsError(format!("Missing content file {filename}")))?;
-
+    let content = state.storage.read_attachment(&path, filename)?;
     let (filename, result) = match req.feature.as_str() {
         "summary" => (
             SUMMARY_FILE_NAME,
-            ai_job::summarize(&state.client, ai_config, content)
+            ai_job::summarize(&state.client, ai_config, &content)
                 .await
                 .map_err(AppError::AiError)?,
         ),
         "mindmap" => (
             MINDMAP_FILE_NAME,
-            ai_job::mindmap(&state.client, ai_config, content)
+            ai_job::mindmap(&state.client, ai_config, &content)
                 .await
                 .map_err(AppError::AiError)?,
         ),

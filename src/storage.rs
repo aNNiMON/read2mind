@@ -128,6 +128,17 @@ impl Storage {
         })
     }
 
+    pub fn read_attachment(&self, item_path: &str, name: &str) -> Result<String, AppError> {
+        let path = self.item_dir(item_path).join(name);
+        if !path.exists() {
+            return Err(AppError::FsError(format!(
+                "Attachment {name} does not exist"
+            )));
+        }
+        fs::read_to_string(path)
+            .map_err(|e| AppError::FsError(format!("Failed to read {name}: {e}")))
+    }
+
     /// Save attachment file
     pub fn save_attachment_by_item_path(
         &self,
