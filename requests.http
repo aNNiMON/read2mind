@@ -32,6 +32,10 @@ GET {{base.url}}/api/items?status=new
 # @name List done items
 GET {{base.url}}/api/items?status=done
 
+### List items by date
+# @name List items by date
+GET {{base.url}}/api/items?date=2026-06-06
+
 ### List items by author
 # @name List items by author
 GET {{base.url}}/api/items?author=aNNiMON
