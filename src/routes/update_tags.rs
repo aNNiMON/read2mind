@@ -9,7 +9,7 @@ use crate::{AppState, db_index, error::AppError, item::Item, validate};
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateTagsRequest {
-    pub tags: String,
+    pub tags: Option<String>,
 }
 
 pub async fn handler(
@@ -17,7 +17,7 @@ pub async fn handler(
     Path(path): Path<String>,
     Json(req): Json<UpdateTagsRequest>,
 ) -> Result<Json<Item>, AppError> {
-    let tags = validate::validate_tags(Some(&req.tags))?;
+    let tags = validate::validate_tags(req.tags.as_deref())?;
 
     let mut metadata = state.storage.read_metadata(&path)?;
     metadata.tags = tags;
