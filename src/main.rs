@@ -1,5 +1,5 @@
 use axum::Router;
-use axum::routing::{delete, get, put};
+use axum::routing::{delete, get, post, put};
 use reqwest::Client;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -64,7 +64,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             "/api/items/{path}/status",
             put(routes::update_status::handler),
         )
-        .route("/api/items/{path}/ai", put(routes::ai_generate::handler))
+        .route("/api/items/{path}/ai", post(routes::ai_generate::handler))
         .route("/api/items/{path}/tags", put(routes::update_tags::handler))
         .nest_service("/data", ServeDir::new(&data_dir));
 
