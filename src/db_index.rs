@@ -1,7 +1,7 @@
 use core::slice;
 use std::sync::{Arc, Mutex};
 
-use rusqlite::{Connection, ToSql};
+use rusqlite::{Connection, ToSql, params};
 
 use crate::{error::AppError, item::Item};
 
@@ -74,7 +74,7 @@ pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
             kind=excluded.kind, title=excluded.title, url=excluded.url,
             author=excluded.author, status=excluded.status,
             created_at=excluded.created_at, updated_at=excluded.updated_at",
-            rusqlite::params![
+            params![
                 item.path,
                 item.kind.to_string(),
                 item.title,
@@ -87,16 +87,13 @@ pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
         )
         .map_err(|e| AppError::DbError(format!("db index add item {}: {}", item.path, e)))?;
 
-        tx.execute(
-            "DELETE FROM tags WHERE path = ?1",
-            rusqlite::params![item.path],
-        )
-        .map_err(|e| AppError::DbError(format!("db index delete tags {}: {}", item.path, e)))?;
+        tx.execute("DELETE FROM tags WHERE path = ?1", params![item.path])
+            .map_err(|e| AppError::DbError(format!("db index delete tags {}: {}", item.path, e)))?;
 
         for tag in &item.tags {
             tx.execute(
                 "INSERT INTO tags (path, tag) VALUES (?1, ?2)",
-                rusqlite::params![item.path, tag],
+                params![item.path, tag],
             )
             .map_err(|e| AppError::DbError(format!("db index add tag {}: {}", tag, e)))?;
         }
@@ -195,6 +192,22 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| AppError::DbError(format!("db index items row: {}", e)))?;
     Ok(items)
+}
+
+pub fn delete_item(db: &DbIndex, path: &str) -> Result<(), AppError> {
+    let mut conn = db
+        .lock()
+        .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
+    let tx = conn
+        .transaction()
+        .map_err(|e| AppError::DbError(format!("db index transaction: {}", e)))?;
+    tx.execute("DELETE FROM tags WHERE path = ?1", params![path])
+        .map_err(|e| AppError::DbError(format!("db index delete tags {}: {}", path, e)))?;
+    tx.execute("DELETE FROM items WHERE path = ?1", params![path])
+        .map_err(|e| AppError::DbError(format!("db index delete item {}: {}", path, e)))?;
+    tx.commit()
+        .map_err(|e| AppError::DbError(format!("db index commit: {}", e)))?;
+    Ok(())
 }
 
 fn load_tags(conn: &Connection, path: &str) -> Result<Vec<String>, AppError> {

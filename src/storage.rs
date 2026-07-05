@@ -110,6 +110,17 @@ impl Storage {
         Ok(())
     }
 
+    /// Delete item directory
+    pub fn delete_item(&self, item_path: &str) -> Result<(), AppError> {
+        let dir = self.item_dir(item_path)?;
+        if !dir.exists() {
+            return Err(AppError::NotFound(format!("Item not found: {item_path}")));
+        }
+        fs::remove_dir_all(&dir)
+            .map_err(|e| AppError::FsError(format!("Failed to delete item: {e}")))?;
+        Ok(())
+    }
+
     pub fn list_attachments(&self, item_path: &str) -> Result<AttachmentsList, AppError> {
         let dir = self.item_dir(item_path)?;
         let mut attachments: HashSet<String> = HashSet::new();

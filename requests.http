@@ -136,6 +136,10 @@ Content-Type: application/json
   "tags": "wezterm, terminal, updated"
 }
 
+### Delete item
+# @name Delete item
+DELETE {{base.url}}/api/items/20260704 Simple task
+
 ### Generate AI summary
 # @name Generate AI summary
 PUT {{base.url}}/api/items/20260625 WezTerm projects selector/ai
