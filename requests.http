@@ -182,3 +182,7 @@ DELETE {{base.url}}/api/items/20260625 WezTerm projects selector/attachments/not
 ### Health
 # @name Health
 GET {{base.url}}/api/health
+
+### Config AI
+# @name Config AI
+GET {{base.url}}/api/config/ai

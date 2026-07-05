@@ -12,11 +12,12 @@ use crate::{
     error::AppError,
     item::{Item, ItemKind},
     jobs::ai_job,
+    model::ai_features::AiFeature,
 };
 
 #[derive(Debug, Deserialize)]
 pub struct AiGenerateRequest {
-    pub feature: String,
+    pub feature: AiFeature,
 }
 
 #[derive(Debug, Serialize)]
@@ -47,20 +48,19 @@ pub async fn handler(
     };
 
     let content = state.storage.read_attachment(&path, filename)?;
-    let (filename, result) = match req.feature.as_str() {
-        "summary" => (
+    let (filename, result) = match req.feature {
+        AiFeature::Summary => (
             SUMMARY_FILE_NAME,
             ai_job::summarize(&state.client, ai_config, &content)
                 .await
                 .map_err(AppError::AiError)?,
         ),
-        "mindmap" => (
+        AiFeature::Mindmap => (
             MINDMAP_FILE_NAME,
             ai_job::mindmap(&state.client, ai_config, &content)
                 .await
                 .map_err(AppError::AiError)?,
         ),
-        _ => return Err(AppError::InvalidRequest("Invalid feature".to_owned())),
     };
 
     let mut status = "skipped".to_owned();
