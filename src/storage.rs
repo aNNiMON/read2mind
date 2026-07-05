@@ -143,7 +143,7 @@ impl Storage {
     pub fn read_attachment(&self, item_path: &str, name: &str) -> Result<String, AppError> {
         let path = self.item_dir(item_path)?.join(name);
         if !path.exists() {
-            return Err(AppError::FsError(format!(
+            return Err(AppError::NotFound(format!(
                 "Attachment {name} does not exist"
             )));
         }
@@ -179,6 +179,18 @@ impl Storage {
     /// Save content.md file
     pub fn save_content(&self, content: &str, dir: &PathBuf) -> Result<(), AppError> {
         self.save_attachment(dir, CONTENT_FILE_NAME, content.as_bytes())
+    }
+
+    /// Delete attachment file
+    pub fn delete_attachment(&self, item_path: &str, name: &str) -> Result<(), AppError> {
+        let path = self.item_dir(item_path)?.join(name);
+        if !path.exists() {
+            return Err(AppError::NotFound(format!(
+                "Attachment {name} does not exist"
+            )));
+        }
+        fs::remove_file(path)
+            .map_err(|e| AppError::FsError(format!("Failed to delete {name}: {e}")))
     }
 
     /// Sanitize title for folder name, limiting to 120 characters

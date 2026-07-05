@@ -61,6 +61,10 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             get(routes::list_attachments::handler).post(routes::add_attachment::handler),
         )
         .route(
+            "/api/items/{path}/attachments/{name}",
+            delete(routes::delete_attachment::handler),
+        )
+        .route(
             "/api/items/{path}/status",
             put(routes::update_status::handler),
         )

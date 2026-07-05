@@ -174,3 +174,7 @@ Content-Type: text/markdown
 
 @mprocs.yaml
 --resterm-415585af9536eb485a5ca2c5--
+
+### Delete note.md attachment
+# @name Delete note.md attachment
+DELETE {{base.url}}/api/items/20260625 WezTerm projects selector/attachments/note.md
