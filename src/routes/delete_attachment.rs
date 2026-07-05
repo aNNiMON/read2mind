@@ -2,7 +2,7 @@ use axum::extract::{Path, State};
 use chrono::{Local, SecondsFormat};
 use reqwest::StatusCode;
 
-use crate::{AppState, db_index, error::AppError, item::Item};
+use crate::{AppState, db_index, error::AppError, model::item::Item};
 
 pub async fn handler(
     State(state): State<AppState>,

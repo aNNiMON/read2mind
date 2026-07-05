@@ -8,7 +8,7 @@ use serde::Deserialize;
 use crate::{
     AppState, db_index,
     error::AppError,
-    item::{Item, ItemStatus},
+    model::item::{Item, ItemStatus},
 };
 
 #[derive(Debug, Deserialize)]

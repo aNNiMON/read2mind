@@ -2,7 +2,7 @@ use std::path::{Component, Path};
 
 use chrono::{DateTime, Local};
 
-use crate::{attachment, error::AppError, item::ItemKind};
+use crate::{error::AppError, model::attachment, model::item::ItemKind};
 
 /// Validates item fields according to item kind
 pub fn validate_item(

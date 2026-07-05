@@ -6,8 +6,8 @@ use serde::Serialize;
 
 use crate::{
     AppState,
-    attachment::{CONTENT_FILE_NAME, NOTE_FILE_NAME},
     error::AppError,
+    model::attachment::{CONTENT_FILE_NAME, NOTE_FILE_NAME},
     storage::AttachmentsList,
 };
 

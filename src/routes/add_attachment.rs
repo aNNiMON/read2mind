@@ -6,7 +6,7 @@ use axum::{
 use chrono::{Local, SecondsFormat};
 use serde::Serialize;
 
-use crate::{AppState, db_index, error::AppError, item::Item, validate};
+use crate::{AppState, db_index, error::AppError, model::item::Item, validate};
 
 #[derive(Debug, Serialize)]
 pub struct AddAttachmentResponse {

@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 
 use rusqlite::{Connection, ToSql, params};
 
-use crate::{error::AppError, item::Item};
+use crate::{error::AppError, model::item::Item};
 
 pub type DbIndex = Arc<Mutex<Connection>>;
 

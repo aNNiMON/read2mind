@@ -8,7 +8,7 @@ use crate::{
     AppState,
     db_index::{self, ItemsFilter},
     error::AppError,
-    item::Item,
+    model::item::Item,
 };
 
 #[derive(Debug, Deserialize, Default)]

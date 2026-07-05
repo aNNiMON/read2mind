@@ -14,11 +14,9 @@ use crate::db_index::DbIndex;
 use crate::jobs::build_index::BuildIndexJob;
 use crate::storage::Storage;
 
-mod attachment;
 mod config;
 mod db_index;
 mod error;
-mod item;
 mod jobs;
 mod model;
 mod routes;

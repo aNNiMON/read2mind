@@ -5,8 +5,8 @@ use serde::Deserialize;
 use crate::{
     AppState, db_index,
     error::AppError,
-    item::{Item, ItemKind, ItemMetadata, ItemStatus},
     jobs::fetch_job::FetchJob,
+    model::item::{Item, ItemKind, ItemMetadata, ItemStatus},
     validate,
 };
 

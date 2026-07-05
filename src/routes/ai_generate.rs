@@ -6,13 +6,12 @@ use chrono::{Local, SecondsFormat};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    AppState,
-    attachment::{CONTENT_FILE_NAME, MINDMAP_FILE_NAME, SUMMARY_FILE_NAME},
-    db_index,
+    AppState, db_index,
     error::AppError,
-    item::{Item, ItemKind},
     jobs::ai_job,
     model::ai_features::AiFeature,
+    model::attachment::{CONTENT_FILE_NAME, MINDMAP_FILE_NAME, SUMMARY_FILE_NAME},
+    model::item::{Item, ItemKind},
 };
 
 #[derive(Debug, Deserialize)]

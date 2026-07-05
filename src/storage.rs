@@ -4,9 +4,9 @@ use chrono::{DateTime, Datelike, Local};
 use glob::glob;
 
 use crate::{
-    attachment::{CONTENT_FILE_NAME, METADATA_FILE_NAME},
     error::AppError,
-    item::{Item, ItemMetadata},
+    model::attachment::{CONTENT_FILE_NAME, METADATA_FILE_NAME},
+    model::item::{Item, ItemMetadata},
     validate,
 };
 
