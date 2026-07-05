@@ -47,12 +47,12 @@ impl Storage {
             self.data_dir.display(),
             METADATA_FILE_NAME
         );
-        let files = glob(&pattern)
-            .map_err(|e| AppError::FsError(format!("Failed to list files: {}", e)))?;
+        let files =
+            glob(&pattern).map_err(|e| AppError::FsError(format!("Failed to list files: {e}")))?;
         let mut items = Vec::new();
         for file in files {
             let path =
-                file.map_err(|e| AppError::FsError(format!("Failed to get file path: {}", e)))?;
+                file.map_err(|e| AppError::FsError(format!("Failed to get file path: {e}")))?;
             let item_path = path
                 .parent()
                 .and_then(|p| p.file_name())
@@ -68,12 +68,13 @@ impl Storage {
     /// Read and parse metadata.json file
     pub fn read_metadata(&self, item_path: &str) -> Result<ItemMetadata, AppError> {
         let metadata_path = self.item_dir(item_path)?.join(METADATA_FILE_NAME);
-        let metadata_json = fs::read_to_string(&metadata_path).map_err(|e| {
-            AppError::FsError(format!("Failed to read {}: {}", METADATA_FILE_NAME, e))
-        })?;
-        let metadata: ItemMetadata = serde_json::from_str(&metadata_json).map_err(|e| {
-            AppError::FsError(format!("Failed to parse {}: {}", METADATA_FILE_NAME, e))
-        })?;
+        if !metadata_path.exists() {
+            return Err(AppError::NotFound(format!("Item not found: {item_path}")));
+        }
+        let metadata_json = fs::read_to_string(&metadata_path)
+            .map_err(|e| AppError::FsError(format!("Failed to read {METADATA_FILE_NAME}: {e}")))?;
+        let metadata: ItemMetadata = serde_json::from_str(&metadata_json)
+            .map_err(|e| AppError::FsError(format!("Failed to parse {METADATA_FILE_NAME}: {e}")))?;
         Ok(metadata)
     }
 
@@ -103,10 +104,9 @@ impl Storage {
         Self::create_dir(dir)?;
         let metadata_path = dir.join(METADATA_FILE_NAME);
         let metadata_json = serde_json::to_string_pretty(&metadata)
-            .map_err(|e| AppError::FsError(format!("Failed to serialize metadata JSON: {}", e)))?;
-        fs::write(&metadata_path, metadata_json).map_err(|e| {
-            AppError::FsError(format!("Failed to write {}: {}", METADATA_FILE_NAME, e))
-        })?;
+            .map_err(|e| AppError::FsError(format!("Failed to serialize metadata JSON: {e}")))?;
+        fs::write(&metadata_path, metadata_json)
+            .map_err(|e| AppError::FsError(format!("Failed to write {METADATA_FILE_NAME}: {e}")))?;
         Ok(())
     }
 
@@ -114,10 +114,10 @@ impl Storage {
         let dir = self.item_dir(item_path)?;
         let mut attachments: HashSet<String> = HashSet::new();
         let entries = fs::read_dir(&dir)
-            .map_err(|e| AppError::FsError(format!("Failed to read directory: {}", e)))?;
+            .map_err(|e| AppError::FsError(format!("Failed to read directory: {e}")))?;
         for entry in entries {
             let entry =
-                entry.map_err(|e| AppError::FsError(format!("Failed to read directory: {}", e)))?;
+                entry.map_err(|e| AppError::FsError(format!("Failed to read directory: {e}")))?;
             let fname = entry.file_name();
             let fname_str = fname.to_string_lossy();
             attachments.insert(fname_str.to_string());
@@ -161,7 +161,7 @@ impl Storage {
         Self::create_dir(dir)?;
         let path = dir.join(filename);
         fs::write(&path, bytes)
-            .map_err(|e| AppError::FsError(format!("Failed to write {}: {}", filename, e)))?;
+            .map_err(|e| AppError::FsError(format!("Failed to write {filename}: {e}")))?;
         Ok(())
     }
 
@@ -188,7 +188,7 @@ impl Storage {
 
     fn create_dir(dir: &PathBuf) -> Result<(), AppError> {
         fs::create_dir_all(dir)
-            .map_err(|e| AppError::FsError(format!("Failed to create directory {:?}: {}", dir, e)))
+            .map_err(|e| AppError::FsError(format!("Failed to create directory {:?}: {e}", dir)))
     }
 
     /// Get the directory path of an item from its identifier

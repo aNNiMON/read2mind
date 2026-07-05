@@ -9,6 +9,7 @@ use serde_json::json;
 pub enum AppError {
     InvalidRequest(String),
     FetchError(String),
+    NotFound(String),
     FsError(String),
     DbError(String),
     ConfigError(String),
@@ -20,6 +21,7 @@ impl std::fmt::Display for AppError {
         let (kind, msg) = match self {
             AppError::InvalidRequest(m) => ("InvalidRequest", m),
             AppError::FetchError(m) => ("FetchError", m),
+            AppError::NotFound(m) => ("NotFound", m),
             AppError::FsError(m) => ("FsError", m),
             AppError::DbError(m) => ("DbError", m),
             AppError::ConfigError(m) => ("ConfigError", m),
@@ -36,6 +38,7 @@ impl IntoResponse for AppError {
         let (status, error_message) = match self {
             AppError::InvalidRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::FetchError(msg) => (StatusCode::UNPROCESSABLE_ENTITY, msg),
+            AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
             AppError::FsError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AppError::DbError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AppError::ConfigError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
