@@ -7,6 +7,7 @@ use crate::{
     attachment::{CONTENT_FILE_NAME, METADATA_FILE_NAME},
     error::AppError,
     item::{Item, ItemMetadata},
+    validate,
 };
 
 const MAX_FOLDER_LENGTH: usize = 120;
@@ -66,7 +67,7 @@ impl Storage {
 
     /// Read and parse metadata.json file
     pub fn read_metadata(&self, item_path: &str) -> Result<ItemMetadata, AppError> {
-        let metadata_path = self.item_dir(item_path).join(METADATA_FILE_NAME);
+        let metadata_path = self.item_dir(item_path)?.join(METADATA_FILE_NAME);
         let metadata_json = fs::read_to_string(&metadata_path).map_err(|e| {
             AppError::FsError(format!("Failed to read {}: {}", METADATA_FILE_NAME, e))
         })?;
@@ -78,7 +79,7 @@ impl Storage {
 
     /// Save metadata.json file
     pub fn save_metadata(&self, metadata: &ItemMetadata, item_path: &str) -> Result<(), AppError> {
-        let dir = self.item_dir(item_path);
+        let dir = self.item_dir(item_path)?;
         self.save_metadata_by_dir(metadata, &dir)
     }
 
@@ -110,7 +111,7 @@ impl Storage {
     }
 
     pub fn list_attachments(&self, item_path: &str) -> Result<AttachmentsList, AppError> {
-        let dir = self.item_dir(item_path);
+        let dir = self.item_dir(item_path)?;
         let mut attachments: HashSet<String> = HashSet::new();
         let entries = fs::read_dir(&dir)
             .map_err(|e| AppError::FsError(format!("Failed to read directory: {}", e)))?;
@@ -129,7 +130,7 @@ impl Storage {
     }
 
     pub fn read_attachment(&self, item_path: &str, name: &str) -> Result<String, AppError> {
-        let path = self.item_dir(item_path).join(name);
+        let path = self.item_dir(item_path)?.join(name);
         if !path.exists() {
             return Err(AppError::FsError(format!(
                 "Attachment {name} does not exist"
@@ -146,7 +147,7 @@ impl Storage {
         filename: &str,
         bytes: &[u8],
     ) -> Result<(), AppError> {
-        let dir = self.item_dir(item_path);
+        let dir = self.item_dir(item_path)?;
         self.save_attachment(&dir, filename, bytes)
     }
 
@@ -191,8 +192,9 @@ impl Storage {
     }
 
     /// Get the directory path of an item from its identifier
-    fn item_dir(&self, item_path: &str) -> PathBuf {
+    fn item_dir(&self, item_path: &str) -> Result<PathBuf, AppError> {
+        let item_path = validate::validate_item_path(item_path)?;
         let year = item_path.chars().take(4).collect::<String>();
-        self.data_dir.join(year).join(item_path)
+        Ok(self.data_dir.join(year).join(item_path))
     }
 }
