@@ -178,3 +178,7 @@ Content-Type: text/markdown
 ### Delete note.md attachment
 # @name Delete note.md attachment
 DELETE {{base.url}}/api/items/20260625 WezTerm projects selector/attachments/note.md
+
+### Health
+# @name Health
+GET {{base.url}}/api/health
