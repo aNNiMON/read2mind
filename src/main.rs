@@ -8,6 +8,9 @@ use tokio::net::TcpListener;
 #[cfg(debug_assertions)]
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
+use tower_http::trace::TraceLayer;
+use tracing_subscriber::layer::SubscriberExt as _;
+use tracing_subscriber::util::SubscriberInitExt as _;
 
 use crate::config::Config;
 use crate::db_index::DbIndex;
@@ -32,6 +35,19 @@ pub struct AppState {
 }
 
 async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                format!(
+                    "{}=info,tower_http=info,axum::rejection=info",
+                    env!("CARGO_CRATE_NAME")
+                )
+                .into()
+            }),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     let config = Config::load()?;
     let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| config.bind_address.clone());
 
@@ -81,7 +97,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             .allow_headers(Any),
     );
 
-    let app = app.with_state(app_state);
+    let app = app.layer(TraceLayer::new_for_http()).with_state(app_state);
 
     println!("Starting server on {}", bind_address);
     let listener = TcpListener::bind(&bind_address).await?;
