@@ -3,3 +3,4 @@ pub const NOTE_FILE_NAME: &str = "note.md";
 pub const CONTENT_FILE_NAME: &str = "content.md";
 pub const SUMMARY_FILE_NAME: &str = "summary.md";
 pub const MINDMAP_FILE_NAME: &str = "mindmap.md";
+pub const BANNER_FILE_NAME: &str = "banner.jpg";

@@ -1,12 +1,18 @@
+use std::collections::HashMap;
+
 use axum::{Json, extract::State};
 use chrono::SecondsFormat;
 use serde::Deserialize;
+use tracing::debug;
 
 use crate::{
     AppState, db_index,
     error::AppError,
-    jobs::fetch_job::FetchJob,
-    model::item::{Item, ItemKind, ItemMetadata, ItemStatus},
+    jobs::{download_job::DownloadJob, fetch_job::FetchJob},
+    model::{
+        attachment::BANNER_FILE_NAME,
+        item::{Item, ItemKind, ItemMetadata, ItemStatus},
+    },
     validate,
 };
 
@@ -52,22 +58,31 @@ pub async fn handler(
         ..Default::default()
     };
 
+    let mut downloads: HashMap<&str, DownloadJob> = HashMap::new();
     let mut content: Option<String> = None;
     match req.kind {
         ItemKind::Article => {
             // Fetch title, author and markdown content
             let fetch_job = FetchJob::new(req.url.unwrap(), req.content.clone());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
+            debug!(?result, "create_item Article");
             item.title = req.title.or(result.title).unwrap_or(item.title);
             item.author = req.author.or(result.author);
+            if let Some(image) = result.image {
+                downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
+            }
             content = Some(result.content);
         }
         ItemKind::Video => {
             // Fetch title, author and transcript
             let fetch_job = FetchJob::from_url(req.url.unwrap());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
+            debug!(?result, "create_item Video");
             item.title = req.title.or(result.title).unwrap_or(item.title);
             item.author = req.author.or(result.author);
+            if let Some(image) = result.image {
+                downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
+            }
             content = req.content.or(Some(result.content));
         }
         ItemKind::Bookmark => {
@@ -75,6 +90,9 @@ pub async fn handler(
             let fetch_job = FetchJob::from_url(req.url.unwrap());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
             item.title = req.title.or(result.title).unwrap_or(item.title);
+            if let Some(image) = result.image {
+                downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
+            }
         }
         ItemKind::Note => {
             item.title = req.title.unwrap_or(item.title);
@@ -95,6 +113,17 @@ pub async fn handler(
     // Save file with item content
     if let Some(content) = content {
         state.storage.save_content(&content, &dir_path)?;
+    }
+
+    // Download in background
+    for (filename, job) in downloads {
+        let storage = state.storage.clone();
+        let dir_path = dir_path.clone();
+        tokio::spawn(async move {
+            if let Ok(cursor) = job.run().await {
+                let _ = storage.copy_from_cursor(cursor, &dir_path, filename);
+            }
+        });
     }
 
     // Update index

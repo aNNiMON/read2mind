@@ -1,12 +1,20 @@
-use std::{collections::HashSet, fs, path::PathBuf};
+use std::{
+    collections::HashSet,
+    fs::{self, File},
+    io::{Cursor, Write},
+    path::PathBuf,
+};
 
+use axum::body::Bytes;
 use chrono::{DateTime, Datelike, Local};
 use glob::glob;
 
 use crate::{
     error::AppError,
-    model::attachment::{CONTENT_FILE_NAME, METADATA_FILE_NAME},
-    model::item::{Item, ItemMetadata},
+    model::{
+        attachment::{BANNER_FILE_NAME, CONTENT_FILE_NAME, METADATA_FILE_NAME},
+        item::{Item, ItemMetadata},
+    },
     validate,
 };
 
@@ -176,9 +184,30 @@ impl Storage {
         Ok(())
     }
 
+    /// Copy attachment file from cursor
+    pub fn copy_from_cursor(
+        &self,
+        cursor: Cursor<Bytes>,
+        dir: &PathBuf,
+        filename: &str,
+    ) -> Result<(), AppError> {
+        Self::create_dir(dir)?;
+        let path = dir.join(filename);
+        let mut file = File::create(&path)
+            .map_err(|e| AppError::FsError(format!("Failed to create {filename}: {e}")))?;
+        file.write_all(&cursor.into_inner())
+            .map_err(|e| AppError::FsError(format!("Failed to write {filename}: {e}")))?;
+        Ok(())
+    }
+
     /// Save content.md file
     pub fn save_content(&self, content: &str, dir: &PathBuf) -> Result<(), AppError> {
         self.save_attachment(dir, CONTENT_FILE_NAME, content.as_bytes())
+    }
+
+    /// Save banner
+    pub fn save_banner(&self, bytes: &[u8], dir: &PathBuf) -> Result<(), AppError> {
+        self.save_attachment(dir, BANNER_FILE_NAME, bytes)
     }
 
     /// Delete attachment file
