@@ -48,7 +48,7 @@ pub async fn handler(
     let created_at = validate::validate_datetime(req.created_at)?;
     let tags = validate::validate_tags(req.tags.as_deref())?;
 
-    let mut item = Item {
+    let mut m = ItemMetadata {
         kind: req.kind,
         title: "Untitled".to_owned(),
         url: req.url.clone(),
@@ -66,8 +66,9 @@ pub async fn handler(
             let fetch_job = FetchJob::new(req.url.unwrap(), req.content.clone());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
             debug!(?result, "create_item Article");
-            item.title = req.title.or(result.title).unwrap_or(item.title);
-            item.author = req.author.or(result.author);
+            m.title = req.title.or(result.title).unwrap_or(m.title);
+            m.author = req.author.or(result.author);
+            m.published_at = result.published;
             if let Some(image) = result.image {
                 downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
             }
@@ -78,8 +79,9 @@ pub async fn handler(
             let fetch_job = FetchJob::from_url(req.url.unwrap());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
             debug!(?result, "create_item Video");
-            item.title = req.title.or(result.title).unwrap_or(item.title);
-            item.author = req.author.or(result.author);
+            m.title = req.title.or(result.title).unwrap_or(m.title);
+            m.author = req.author.or(result.author);
+            m.published_at = result.published;
             if let Some(image) = result.image {
                 downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
             }
@@ -89,26 +91,24 @@ pub async fn handler(
             // Fetch title
             let fetch_job = FetchJob::from_url(req.url.unwrap());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
-            item.title = req.title.or(result.title).unwrap_or(item.title);
+            m.title = req.title.or(result.title).unwrap_or(m.title);
             if let Some(image) = result.image {
                 downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
             }
         }
         ItemKind::Note => {
-            item.title = req.title.unwrap_or(item.title);
+            m.title = req.title.unwrap_or(m.title);
             content = req.content;
         }
         ItemKind::Task => {
-            item.title = req.title.unwrap_or(item.title);
+            m.title = req.title.unwrap_or(m.title);
             content = req.content;
         }
     };
-    item.path = state.storage.item_path(&created_at, &item.title);
 
     // Save metadata.json
-    let metadata = ItemMetadata::from(item.clone());
-    let dir_path = state.storage.item_full_path(&created_at, &item.title);
-    state.storage.save_metadata_by_dir(&metadata, &dir_path)?;
+    let dir_path = state.storage.item_full_path(&created_at, &m.title);
+    state.storage.save_metadata_by_dir(&m, &dir_path)?;
 
     // Save file with item content
     if let Some(content) = content {
@@ -126,7 +126,9 @@ pub async fn handler(
         });
     }
 
-    // Update index
+    // Create item and update index
+    let path = state.storage.item_path(&created_at, &m.title);
+    let item = Item::from_metadata(m, path);
     db_index::add_item(&state.db, &item)?;
 
     Ok(Json(item))

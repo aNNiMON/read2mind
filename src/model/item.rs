@@ -46,6 +46,8 @@ pub struct ItemMetadata {
     pub status: ItemStatus,
     pub created_at: String,
     pub updated_at: Option<String>,
+    /// Could be in any format, indexing this is disconnected
+    pub published_at: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -72,6 +74,7 @@ impl From<Item> for ItemMetadata {
             status: item.status,
             created_at: item.created_at,
             updated_at: item.updated_at,
+            published_at: None,
         }
     }
 }
