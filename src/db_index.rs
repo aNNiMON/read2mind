@@ -210,6 +210,21 @@ pub fn delete_item(db: &DbIndex, path: &str) -> Result<(), AppError> {
     Ok(())
 }
 
+pub fn load_all_tags(db: &DbIndex) -> Result<Vec<String>, AppError> {
+    let conn = db
+        .lock()
+        .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
+    let mut stmt = conn
+        .prepare("SELECT DISTINCT tag FROM tags ORDER BY tag")
+        .map_err(|e| AppError::DbError(format!("db index prepare tags: {}", e)))?;
+    let tags = stmt
+        .query_map([], |row| row.get::<_, String>(0))
+        .map_err(|e| AppError::DbError(format!("db index query tags: {}", e)))?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| AppError::DbError(format!("db index tags row: {}", e)))?;
+    Ok(tags)
+}
+
 fn load_tags(conn: &Connection, path: &str) -> Result<Vec<String>, AppError> {
     let mut stmt = conn
         .prepare("SELECT tag FROM tags WHERE path = ?1 ORDER BY tag")

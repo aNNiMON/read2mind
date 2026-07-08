@@ -85,6 +85,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
         )
         .route("/api/items/{path}/ai", post(routes::ai_generate::handler))
         .route("/api/items/{path}/tags", put(routes::update_tags::handler))
+        .route("/api/tags", get(routes::list_tags::handler))
         .route("/api/health", get(routes::health::handler))
         .route("/api/config/ai", get(routes::config_ai::handler))
         .nest_service("/data", ServeDir::new(&data_dir));
