@@ -96,6 +96,20 @@ Content-Type: application/json
 }
 
 
+### New video item fetching title
+# @name New Video item
+# @timeout 60s
+POST {{base.url}}/api/items
+Content-Type: application/json
+
+{
+  "url": "https://www.youtube.com/watch?v=uXUyfMuCAuc",
+  "kind": "video",
+  "tags": "dev, rust",
+  "created_at": "2026-07-08T12:00:00+03:00"
+}
+
+
 ### Update item status to in_progress
 # @name Update item status to in_progress
 PUT {{base.url}}/api/items/20260625 WezTerm projects selector/status

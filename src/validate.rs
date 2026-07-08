@@ -1,6 +1,7 @@
 use std::path::{Component, Path};
 
 use chrono::{DateTime, Local};
+use reqwest::Url;
 
 use crate::{error::AppError, model::attachment, model::item::ItemKind};
 
@@ -34,7 +35,22 @@ pub fn validate_item(
             }
         }
         ItemKind::Video => {
-            if url.is_none() {
+            if let Some(url) = url {
+                let parsed_url = url
+                    .parse::<Url>()
+                    .map_err(|e| AppError::InvalidRequest(format!("Invalid URL: {e}")))?;
+                let domain = parsed_url
+                    .domain()
+                    .ok_or_else(|| AppError::InvalidRequest("Invalid URL".to_owned()))?;
+                if !matches!(
+                    domain,
+                    "www.youtube.com" | "youtube.com" | "youtu.be" | "m.youtube.com"
+                ) {
+                    return Err(AppError::InvalidRequest(
+                        "Only YouTube URLs are allowed".to_owned(),
+                    ));
+                }
+            } else {
                 return Err(AppError::InvalidRequest("URL is empty".to_owned()));
             }
         }
