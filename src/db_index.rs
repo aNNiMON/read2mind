@@ -1,5 +1,8 @@
 use core::slice;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use rusqlite::{Connection, ToSql, params};
 
@@ -210,17 +213,21 @@ pub fn delete_item(db: &DbIndex, path: &str) -> Result<(), AppError> {
     Ok(())
 }
 
-pub fn load_all_tags(db: &DbIndex) -> Result<Vec<String>, AppError> {
+pub fn load_tags_by_freq(db: &DbIndex) -> Result<HashMap<String, usize>, AppError> {
     let conn = db
         .lock()
         .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
     let mut stmt = conn
-        .prepare("SELECT DISTINCT tag FROM tags ORDER BY tag")
+        .prepare("SELECT tag, count(*) FROM tags GROUP BY tag")
         .map_err(|e| AppError::DbError(format!("db index prepare tags: {}", e)))?;
     let tags = stmt
-        .query_map([], |row| row.get::<_, String>(0))
+        .query_map([], |row| {
+            let tag: String = row.get(0)?;
+            let count: isize = row.get(1)?;
+            Ok((tag, count as usize))
+        })
         .map_err(|e| AppError::DbError(format!("db index query tags: {}", e)))?
-        .collect::<Result<Vec<_>, _>>()
+        .collect::<Result<HashMap<_, _>, _>>()
         .map_err(|e| AppError::DbError(format!("db index tags row: {}", e)))?;
     Ok(tags)
 }
