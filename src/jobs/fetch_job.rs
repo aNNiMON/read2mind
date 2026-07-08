@@ -1,4 +1,5 @@
 use decruft::{DecruftOptions, DecruftResult};
+use tracing::debug;
 
 pub struct FetchJob {
     pub url: String,
@@ -19,6 +20,8 @@ impl FetchJob {
             Some(html) => html.clone(),
             None => decruft::fetch_page(&self.url).map_err(|e| format!("fetch_page: {e}"))?,
         };
+
+        debug!(html_len = html.len(), "fetch_job");
 
         let mut options = DecruftOptions::default();
         options.url = Some(self.url.clone());
