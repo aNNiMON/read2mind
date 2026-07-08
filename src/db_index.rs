@@ -106,30 +106,28 @@ pub fn add_items(db: &DbIndex, items: &[Item]) -> Result<(), AppError> {
     Ok(())
 }
 
-pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppError> {
+pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<(Vec<Item>, usize), AppError> {
     let conn = db
         .lock()
         .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
 
-    let mut sql =
-        "SELECT path, kind, title, url, author, status, created_at, updated_at FROM items WHERE 1=1"
-            .to_owned();
+    let mut filter_sql = " WHERE 1=1".to_owned();
     let mut params: Vec<Box<dyn ToSql>> = Vec::new();
 
     if let Some(kind) = &filter.kind {
-        sql.push_str(" AND kind = ?");
+        filter_sql.push_str(" AND kind = ?");
         params.push(Box::new(kind));
     }
     if let Some(status) = &filter.status {
-        sql.push_str(" AND status = ?");
+        filter_sql.push_str(" AND status = ?");
         params.push(Box::new(status));
     }
     if let Some(date) = &filter.date {
-        sql.push_str(" AND date(created_at) = ?");
+        filter_sql.push_str(" AND date(created_at) = ?");
         params.push(Box::new(date));
     }
     if let Some(author) = &filter.author {
-        sql.push_str(" AND author = ?");
+        filter_sql.push_str(" AND author = ?");
         params.push(Box::new(author));
     }
 
@@ -137,7 +135,7 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
         let placeholders = std::iter::repeat_n("?", filter.include_tags.len())
             .collect::<Vec<_>>()
             .join(", ");
-        sql.push_str(&format!(
+        filter_sql.push_str(&format!(
             " AND path IN (SELECT path FROM tags t WHERE tag IN ({}))",
             placeholders,
         ));
@@ -153,7 +151,7 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
         let placeholders = std::iter::repeat_n("?", filter.exclude_tags.len())
             .collect::<Vec<_>>()
             .join(", ");
-        sql.push_str(&format!(
+        filter_sql.push_str(&format!(
             " AND path NOT IN (SELECT path FROM tags t WHERE tag IN ({}))",
             placeholders,
         ));
@@ -165,12 +163,29 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
         );
     }
 
-    sql.push_str(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    let count_sql = format!("SELECT COUNT(*) FROM items {}", filter_sql);
+    let count_params: Vec<&dyn ToSql> = params.iter().map(|p| p.as_ref()).collect();
+    let total: i32 = conn
+        .query_row(&count_sql, &count_params[..], |row| row.get(0))
+        .map_err(|e| AppError::DbError(format!("db index count items: {}", e)))?;
+    if total <= 0 {
+        return Ok((Vec::new(), 0));
+    }
+
+    let items_sql = format!(
+        r#"
+            SELECT path, kind, title, url, author, status, created_at, updated_at
+            FROM items {}
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        "#,
+        filter_sql
+    );
     params.push(Box::new(filter.limit));
     params.push(Box::new(filter.offset));
 
     let mut stmt = conn
-        .prepare(&sql)
+        .prepare(&items_sql)
         .map_err(|e| AppError::DbError(format!("db index prepare items: {}", e)))?;
     let param_refs: Vec<&dyn ToSql> = params.iter().map(|p| p.as_ref()).collect();
     let items = stmt
@@ -194,7 +209,7 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<Vec<Item>, AppEr
         .map_err(|e| AppError::DbError(format!("db index query items: {}", e)))?
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| AppError::DbError(format!("db index items row: {}", e)))?;
-    Ok(items)
+    Ok((items, total as usize))
 }
 
 pub fn delete_item(db: &DbIndex, path: &str) -> Result<(), AppError> {

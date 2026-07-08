@@ -2,7 +2,7 @@ use axum::{
     Json,
     extract::{Query, State},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     AppState,
@@ -20,6 +20,12 @@ pub struct ListItemsRequest {
     pub tags: Option<String>,
     pub offset: Option<u32>,
     pub limit: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Default)]
+pub struct ListItemsResponse {
+    pub items: Vec<Item>,
+    pub total: usize,
 }
 
 impl From<ListItemsRequest> for ItemsFilter {
@@ -41,9 +47,9 @@ impl From<ListItemsRequest> for ItemsFilter {
 pub async fn handler(
     State(state): State<AppState>,
     Query(query): Query<ListItemsRequest>,
-) -> Result<Json<Vec<Item>>, AppError> {
-    let items = db_index::load_items(&state.db, &query.into())?;
-    Ok(Json(items))
+) -> Result<Json<ListItemsResponse>, AppError> {
+    let (items, total) = db_index::load_items(&state.db, &query.into())?;
+    Ok(Json(ListItemsResponse { items, total }))
 }
 
 fn parse_tags_filter(tags: Option<&str>) -> (Vec<String>, Vec<String>) {
