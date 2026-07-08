@@ -17,11 +17,6 @@ pub fn validate_item(
                 return Err(AppError::InvalidRequest("URL is empty".to_owned()));
             }
         }
-        ItemKind::Bookmark => {
-            if url.is_none() {
-                return Err(AppError::InvalidRequest("URL is empty".to_owned()));
-            }
-        }
         ItemKind::Note => {
             if title.is_none() {
                 return Err(AppError::InvalidRequest("Title is empty".to_owned()));

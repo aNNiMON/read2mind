@@ -59,8 +59,7 @@ pub async fn handler(
     };
 
     let mut downloads: HashMap<&str, DownloadJob> = HashMap::new();
-    let mut content: Option<String> = None;
-    match req.kind {
+    let content = match req.kind {
         ItemKind::Article => {
             // Fetch title, author and markdown content
             let fetch_job = FetchJob::new(req.url.unwrap(), req.content.clone());
@@ -72,7 +71,7 @@ pub async fn handler(
             if let Some(image) = result.image {
                 downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
             }
-            content = Some(result.content);
+            Some(result.content)
         }
         ItemKind::Video => {
             // Fetch title, author and transcript
@@ -85,24 +84,15 @@ pub async fn handler(
             if let Some(image) = result.image {
                 downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
             }
-            content = req.content.or(Some(result.content));
-        }
-        ItemKind::Bookmark => {
-            // Fetch title
-            let fetch_job = FetchJob::from_url(req.url.unwrap());
-            let result = fetch_job.run().map_err(AppError::FetchError)?;
-            m.title = req.title.or(result.title).unwrap_or(m.title);
-            if let Some(image) = result.image {
-                downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
-            }
+            req.content.or(Some(result.content))
         }
         ItemKind::Note => {
             m.title = req.title.unwrap_or(m.title);
-            content = req.content;
+            req.content
         }
         ItemKind::Task => {
             m.title = req.title.unwrap_or(m.title);
-            content = req.content;
+            req.content
         }
     };
 

@@ -8,8 +8,6 @@ pub enum ItemKind {
     /// Article with url and content
     #[default]
     Article,
-    /// Bookmark with url only
-    Bookmark,
     /// Note with markdown content
     Note,
     /// Task with markdown content
@@ -102,7 +100,6 @@ impl fmt::Display for ItemKind {
             "{}",
             match self {
                 Self::Article => "article",
-                Self::Bookmark => "bookmark",
                 Self::Note => "note",
                 Self::Task => "task",
                 Self::Video => "video",
@@ -115,7 +112,6 @@ impl From<&str> for ItemKind {
     fn from(s: &str) -> Self {
         match s {
             "article" => Self::Article,
-            "bookmark" => Self::Bookmark,
             "note" => Self::Note,
             "task" => Self::Task,
             "video" => Self::Video,

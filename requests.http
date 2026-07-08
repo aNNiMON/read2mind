@@ -70,19 +70,6 @@ Content-Type: application/json
 }
 
 
-### New bookmark item
-# @name New Bookmark item
-POST {{base.url}}/api/items
-Content-Type: application/json
-
-{
-  "url": "https://blog.annimon.com/wezterm-projects/",
-  "kind": "bookmark",
-  "tags": "wezterm, terminal",
-  "created_at": "2026-06-25T10:00:00+03:00"
-}
-
-
 ### New note item
 # @name New Note item
 POST {{base.url}}/api/items
