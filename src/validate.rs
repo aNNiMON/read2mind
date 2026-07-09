@@ -9,7 +9,6 @@ use crate::{error::AppError, model::attachment, model::item::ItemKind};
 pub fn validate_item(
     kind: ItemKind,
     url: Option<&String>,
-    title: Option<&String>,
     content: Option<&String>,
 ) -> Result<(), AppError> {
     match kind {
@@ -19,17 +18,11 @@ pub fn validate_item(
             }
         }
         ItemKind::Note => {
-            if title.is_none() {
-                return Err(AppError::InvalidRequest("Title is empty".to_owned()));
-            }
             if content.is_none() {
                 return Err(AppError::InvalidRequest("Content is empty".to_owned()));
             }
         }
         ItemKind::Task => {
-            if title.is_none() {
-                return Err(AppError::InvalidRequest("Title is empty".to_owned()));
-            }
             if content.is_none() {
                 return Err(AppError::InvalidRequest("Content is empty".to_owned()));
             }
