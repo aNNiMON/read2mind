@@ -88,7 +88,8 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/tags", get(routes::list_tags::handler))
         .route("/api/health", get(routes::health::handler))
         .route("/api/config/ai", get(routes::config_ai::handler))
-        .nest_service("/data", ServeDir::new(&data_dir));
+        .nest_service("/data", ServeDir::new(&data_dir))
+        .fallback_service(ServeDir::new("./public"));
 
     #[cfg(debug_assertions)]
     let app = app.layer(
