@@ -44,7 +44,7 @@ pub struct ItemMetadata {
     pub status: ItemStatus,
     pub created_at: String,
     pub updated_at: Option<String>,
-    /// Could be in any format, indexing this is disconnected
+    /// Could be in any format, indexing this is discouraged
     pub published_at: Option<String>,
 }
 
