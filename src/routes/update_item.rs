@@ -9,7 +9,7 @@ use crate::{
     AppState, db_index,
     error::AppError,
     model::item::{Item, ItemMetadata},
-    routes::request_util::get_non_empty_title,
+    routes::request_util::{filter_non_blank, get_non_empty_title},
     validate,
 };
 
@@ -18,6 +18,7 @@ use crate::{
 pub struct UpdateItemRequest {
     pub title: String,
     pub created_at: String,
+    pub author: Option<String>,
 }
 
 pub async fn handler(
@@ -36,14 +37,15 @@ pub async fn handler(
         title,
         created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
         updated_at: Some(Local::now().to_rfc3339_opts(SecondsFormat::Secs, true)),
+        author: filter_non_blank(req.author),
         ..metadata
     };
-    if path == new_path {
+    let item = if path == new_path {
         state.storage.save_metadata(&new_metadata, &path)?;
         // Update index
         let item = Item::from_metadata(new_metadata, new_path);
         db_index::add_item(&state.db, &item)?;
-        Ok(Json(item))
+        item
     } else {
         state.storage.rename_item(&path, &new_path)?;
         state.storage.save_metadata(&new_metadata, &new_path)?;
@@ -51,6 +53,7 @@ pub async fn handler(
         let item = Item::from_metadata(new_metadata, new_path);
         db_index::delete_item(&state.db, &path)?;
         db_index::add_item(&state.db, &item)?;
-        Ok(Json(item))
-    }
+        item
+    };
+    Ok(Json(item))
 }
