@@ -8,5 +8,8 @@ pub mod health;
 pub mod list_attachments;
 pub mod list_items;
 pub mod list_tags;
+pub mod update_item;
 pub mod update_status;
 pub mod update_tags;
+
+pub(crate) mod request_util;

@@ -137,6 +137,27 @@ Content-Type: application/json
   "tags": "wezterm, terminal, updated"
 }
 
+
+### Update item (rename path)
+# @name Update item
+PUT {{base.url}}/api/items/20260625 WezTerm projects selector
+Content-Type: application/json
+
+{
+  "title": "New title",
+  "created_at": "2026-07-11T18:00:00+03:00"
+}
+
+### Update item
+# @name Update item (revert renaming)
+PUT {{base.url}}/api/items/20260711 New title
+Content-Type: application/json
+
+{
+  "title": "WezTerm projects selector",
+  "created_at": "2026-06-25T10:00:00+03:00"
+}
+
 ### Delete item
 # @name Delete item
 DELETE {{base.url}}/api/items/20260704 Simple task

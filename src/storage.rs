@@ -118,6 +118,24 @@ impl Storage {
         Ok(())
     }
 
+    /// Rename item directory
+    pub fn rename_item(&self, old_path: &str, new_path: &str) -> Result<(), AppError> {
+        let old_dir = self.item_dir(old_path)?;
+        if !old_dir.exists() {
+            return Err(AppError::NotFound(format!("Item not found: {old_path}")));
+        }
+        let new_dir = self.item_dir(new_path)?;
+        if new_dir.exists() {
+            return Err(AppError::FsError(format!(
+                "Item already exists: {new_dir:?}"
+            )));
+        }
+        Self::create_dir(&new_dir)?;
+        fs::rename(&old_dir, &new_dir)
+            .map_err(|e| AppError::FsError(format!("Failed to move item: {e}")))?;
+        Ok(())
+    }
+
     /// Delete item directory
     pub fn delete_item(&self, item_path: &str) -> Result<(), AppError> {
         let dir = self.item_dir(item_path)?;

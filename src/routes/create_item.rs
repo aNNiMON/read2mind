@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use axum::{Json, extract::State};
-use chrono::{Local, SecondsFormat};
+use chrono::SecondsFormat;
 use serde::Deserialize;
 use tracing::debug;
 
@@ -13,6 +13,7 @@ use crate::{
         attachment::BANNER_FILE_NAME,
         item::{Item, ItemKind, ItemMetadata, ItemStatus},
     },
+    routes::request_util::{filter_non_blank, get_non_empty_title},
     validate,
 };
 
@@ -117,14 +118,4 @@ pub async fn handler(
     db_index::add_item(&state.db, &item)?;
 
     Ok(Json(item))
-}
-
-fn get_non_empty_title(v1: Option<String>, v2: Option<String>) -> String {
-    filter_non_blank(v1)
-        .or_else(|| filter_non_blank(v2))
-        .unwrap_or_else(|| Local::now().format("%Y-%m-%d %H:%M:%S").to_string())
-}
-
-fn filter_non_blank(v: Option<String>) -> Option<String> {
-    v.filter(|s| !s.trim().is_empty())
 }
