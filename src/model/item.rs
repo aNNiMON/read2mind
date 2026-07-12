@@ -22,8 +22,12 @@ pub enum ItemStatus {
     /// Default for all items
     #[default]
     New,
-    /// Planned to read, watch or to do
+    /// Planned to read, watch or to do (high priority)
+    PlannedHigh,
+    /// Planned to read, watch or to do (middle priority)
     Planned,
+    /// Planned to read, watch or to do (low priority)
+    PlannedLow,
     /// In progress or reading, watching
     InProgress,
     /// Item is paused
@@ -127,7 +131,9 @@ impl fmt::Display for ItemStatus {
             "{}",
             match self {
                 Self::New => "new",
+                Self::PlannedHigh => "planned_high",
                 Self::Planned => "planned",
+                Self::PlannedLow => "planned_low",
                 Self::InProgress => "in_progress",
                 Self::Paused => "paused",
                 Self::Done => "done",
@@ -141,7 +147,9 @@ impl From<&str> for ItemStatus {
     fn from(s: &str) -> Self {
         match s {
             "new" => Self::New,
+            "planned_high" => Self::PlannedHigh,
             "planned" => Self::Planned,
+            "planned_low" => Self::PlannedLow,
             "in_progress" => Self::InProgress,
             "paused" => Self::Paused,
             "done" => Self::Done,
