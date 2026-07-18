@@ -1490,7 +1490,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "read-later-backend"
+name = "read2mind"
 version = "0.1.0"
 dependencies = [
  "axum",
