@@ -1,0 +1,33 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "dev": "deno run -A npm:vite",
+    "lint": "deno check . && deno lint . && deno fmt --check .",
+    "check": "deno run -A npm:vue-tsc -b",
+    "build": "deno task check && deno run -A npm:vite build",
+    "preview": "deno run -A npm:vite preview"
+  },
+  "unstable": ["fmt-component"],
+  "fmt": {
+    "include": ["src/"],
+    "useTabs": false,
+    "lineWidth": 96,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "imports": {
+    "@vue/tsconfig": "npm:@vue/tsconfig@^0.9.1",
+    "unplugin-icons": "npm:unplugin-icons@^23.0.1",
+    "vue": "npm:vue@^3.5.40",
+    "marked": "npm:marked@^18.0.7",
+    "dompurify": "npm:dompurify@^3.4.12",
+    "markmap-lib": "npm:markmap-lib@^0.18.12",
+    "markmap-view": "npm:markmap-view@^0.18.12",
+    "vite": "npm:vite@^8.1.5",
+    "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@^6.0.8",
+    "unplugin-icons/vite": "npm:unplugin-icons@^23.0.1/vite",
+    "@iconify-json/lucide": "npm:@iconify-json/lucide@^1.2.116"
+  }
+}
