@@ -96,8 +96,11 @@ code {
   font-size: 0.9em;
   border-radius: 0.25rem;
   color: var(--text-h);
-  padding: 0.125em 0.35em;
   background: var(--code-bg);
+}
+
+p > code {
+  padding: 0.125em 0.35em;
 }
 
 /* App shell: item list on the left (drawer on mobile), content view fills
