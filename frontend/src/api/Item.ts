@@ -55,6 +55,8 @@ export type TagsResp =
   | { ok: true; tags: Record<string, number> }
   | { ok: false; error: string };
 
+export type TagFreq = { name: string; count: number };
+
 export type UpdateStatusResp = { ok: true } | { ok: false; error: string };
 
 export interface UpdateItemPayload {

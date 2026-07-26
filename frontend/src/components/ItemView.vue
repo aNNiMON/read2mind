@@ -5,6 +5,7 @@ import type {
   DeleteItemResp,
   Item,
   ItemStatus,
+  TagFreq,
   UpdateItemResp,
   UpdateStatusResp,
   UpdateTagsResp,
@@ -27,7 +28,7 @@ import IconCheck from "~icons/lucide/check";
 
 const props = defineProps<{
   item: Item | null;
-  allTags: string[];
+  allTags: TagFreq[];
   loadTags: () => Promise<void>;
   updateTags: (path: string, tags: string) => Promise<UpdateTagsResp>;
   updateStatus: (path: string, status: ItemStatus) => Promise<UpdateStatusResp>;
@@ -142,6 +143,10 @@ const chooseStatus = async (status: ItemStatus) => {
 const editingTags = ref(false);
 const tagsError = ref<string | null>(null);
 const savingTags = ref(false);
+const suggestions = computed(() => props.allTags.map((t) => t.name));
+const tagsFreq = computed(() =>
+  Object.fromEntries(props.allTags.map((t) => [t.name, t.count]))
+);
 
 const beginEditTags = () => {
   if (!props.item) return;
@@ -354,7 +359,10 @@ const onUploaded = () => {
           <div class="view-tags-row">
             <template v-if="!editingTags">
               <div v-if="item.tags.length" class="view-tags">
-                <span v-for="tag in item.tags" :key="tag" class="tag">{{ tag }}</span>
+                <span v-for="tag in item.tags" :key="tag" class="tag">
+                  {{ tag }}
+                  <span class="tag-count">{{ tagsFreq[tag] || 1 }}</span>
+                </span>
               </div>
               <div v-else class="no-tags">No tags yet.</div>
 
@@ -385,7 +393,7 @@ const onUploaded = () => {
           <div v-if="editingTags" class="tags-editor-wrap">
             <TagsEditor
               :tags="item.tags"
-              :suggestions="allTags"
+              :suggestions
               :disabled="savingTags"
               @add="addTag"
               @remove="removeTag"
@@ -838,5 +846,10 @@ const onUploaded = () => {
   border-radius: 0.625rem;
   color: var(--accent);
   background: var(--accent-bg);
+}
+.tag-count {
+  font-size: 0.75rem;
+  margin-left: 0.25em;
+  opacity: 0.65;
 }
 </style>

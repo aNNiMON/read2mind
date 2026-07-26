@@ -9,6 +9,7 @@ import type {
   ItemKind,
   ItemQuery,
   ItemStatus,
+  TagFreq,
   UpdateItemPayload,
   UpdateItemResp,
   UpdateStatusResp,
@@ -51,14 +52,14 @@ export default function useItems() {
   const activeStatus = ref<ItemStatus | null>(null);
   const activeDate = ref<string | null>(null);
   // All known tag names, sorted by descending usage count. Feeds the tags editor's suggestions.
-  const allTags = ref<string[]>([]);
+  const allTags = ref<TagFreq[]>([]);
 
   const loadTags = async () => {
     const response = await itemsApi.getTags();
     if (response.ok) {
       allTags.value = Object.entries(response.tags)
         .sort((a, b) => b[1] - a[1])
-        .map(([tag]) => tag);
+        .map(([tag, count]) => ({ name: tag, count }));
     }
   };
 
@@ -279,10 +280,12 @@ export default function useItems() {
     const response = await itemsApi.uploadAttachment(path, file);
 
     if (response.ok) {
-      replaceItem(path, (item) =>
-        item.assets.includes(file.name)
-          ? item
-          : { ...item, assets: [...item.assets, file.name] }
+      replaceItem(
+        path,
+        (item) =>
+          item.assets.includes(file.name)
+            ? item
+            : { ...item, assets: [...item.assets, file.name] },
       );
     }
 

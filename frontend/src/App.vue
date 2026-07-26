@@ -98,7 +98,6 @@ const onSelect = (item: Item) => {
   <AddItemModal
     v-if="addKind"
     :kind="addKind"
-    :all-tags="allTags"
     :submit="addItem"
     @close="addKind = null"
   />

@@ -7,7 +7,6 @@ type ItemPayload = CreateItemPayload;
 
 const props = defineProps<{
   kind: ItemKind;
-  allTags: string[];
   submit: (kind: ItemKind, payload: ItemPayload) => Promise<CreateResp>;
 }>();
 
