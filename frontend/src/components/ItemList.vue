@@ -55,7 +55,13 @@ const onAdd = (kind: ItemKind) => {
   <aside class="item-list">
     <header class="list-header">
       <div class="header-row">
-        <span class="logo" aria-hidden="true">R₂M</span>
+        <svg class="logo" aria-hidden="true" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#bdbdbd" stroke="#5e5e5e" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.18" d="M3.968 28.627c0 5.042 3.535 8.068 8.248 8.068 1.179 3.026 4.714 5.043 8.249 5.043s6.48-1.513 8.248-4.034c1.768.504 4.125.504 5.892-.505s2.357-3.025 1.768-4.538c4.124-.504 7.66-3.53 7.66-7.06H8.68c-2.356 0-4.713 1.21-4.713 3.026M3.968 19.373c0-5.042 3.535-8.068 8.248-8.068 1.179-3.026 4.714-5.043 8.249-5.043s6.48 1.513 8.248 4.034c1.768-.504 4.125-.504 5.892.505s2.357 3.025 1.768 4.538c4.124.504 7.66 3.53 7.66 7.06H8.68c-2.356 0-4.713-1.21-4.713-3.026" />
+          <path class="logo-page" stroke-linejoin="round" stroke-width="1.594" d="m22.363 14.168 11.309 3.296v15.383l-11.31-3.297Z" />
+          <path class="logo-page" stroke-linejoin="round" stroke-width="1.594" d="m22.383 14.168-11.309 3.296v15.383l11.31-3.297z" />
+          <path fill="#5f5245" d="m20.478 17.762-7.517 2.217-.012 1.412 7.516-2.258zM20.478 21.985l-7.517 2.218-.012 1.411 7.516-2.257zM20.478 25.981l-7.517 2.217-.012 1.412 7.516-2.258z" overflow="visible" />
+          <path fill="#5f5245" d="m24.17 17.774 7.346 2.218.012 1.411-7.345-2.257zM24.17 21.998l7.346 2.217.012 1.412-7.345-2.258zM24.17 25.993l7.346 2.218.012 1.412-7.345-2.258z" overflow="visible" />
+        </svg>
         <form class="search" @submit.prevent="onSearch">
           <input
             v-model="query"
@@ -172,6 +178,13 @@ const onAdd = (kind: ItemKind) => {
 }
 .logo {
   flex-shrink: 0;
+  width: 2.125rem;
+  height: 2.125rem;
+  display: block;
+}
+.logo-page {
+  fill: var(--accent);
+  stroke: #403734;
 }
 .search {
   flex: 1;
