@@ -1,0 +1,52 @@
+bind_address = "127.0.0.1:8555"
+
+[ai]
+base_url = "http://127.0.0.1:11434/v1"
+api_key_env = ""
+
+summarize_model = "gemma4:e4b"
+summarize_prompt = """
+Summarize the following content responding ONLY with the summary
+You MUST follow the following rules:
+- Summary must be in 3 sentences or less
+- The summary should be done in English. However, if the content language is in Ukrainian or Russian, do not translate it to English, keep it in the original language
+- Do not include any information that is not in the content
+
+{content}
+"""
+
+mindmap_model = "gemma4:e4b"
+mindmap_prompt = """
+Generate a comprehensive, fact-rich mind map as Markdown headers using the following structure:
+
+# Mind Map Title
+## Branch 1
+### Sub Branch A
+### Sub Branch B
+## Branch 2
+
+**Content Requirements:**
+- Include **specific, concrete details and facts**, not just category labels
+  - Bad: "## Education"
+  - Good: "## Education: PhD in Physics from MIT (2015)"
+- Avoid generic structural sections like "Overview," "Introduction," or "Conclusion" – this is a mind map, not an essay
+- If the topic contains extensive information, prioritize breadth over depth and consolidate where necessary
+- Focus on the most relevant and interesting information that creates a useful knowledge structure
+
+**Language Requirements:**
+1. Detect the source content language
+2. If the source language is Ukrainian or Russian, write the entire mind map in that same language
+3. Otherwise, write the entire mind map in English
+4. Do not translate Ukrainian or Russian content into English
+
+**Formatting Requirements:**
+- Each text element must be aligned to a specific hierarchical header level (#, ##, ###) symbols
+- Aim for 2-3 levels of depth to keep the mind map clean and easy to read
+- There must be only one top-level title (the main topic)
+- For large enumerations (6+ items) do not create excessive sub-branches. Instead, combine related items into comma-separated lists within a single branch
+- Do not include any information that is not in the content
+- Do not include any explanatory text, code, or other media, only the mind map structure as Markdown headers
+- Do not use 4 or more header levels
+
+{content}
+"""
