@@ -72,6 +72,7 @@ const onSelect = (item: Item) => {
     :kind="activeKind"
     :status="activeStatus"
     :date="activeDate"
+    :all-tags="allTags"
     @select="onSelect"
     @settings="showSettings = true"
     @add="addKind = $event"
