@@ -82,13 +82,15 @@ jobs:
         shell: bash
         run: |
           cd backend/target/${{ matrix.target }}/release
-          cp ../../../config.toml.example .
+          cp ../../../config.toml.local-llm.example .
+          cp ../../../config.toml.openai.example .
+          cp ../../../../README.md .
           case ${{ matrix.target }} in
           *-pc-windows-*)
-            7z -y a ${{ env.PROGRAM }}-${{ matrix.filename }} ${{ env.PROGRAM }}.exe public config.toml.example
+            7z -y a ${{ env.PROGRAM }}-${{ matrix.filename }} ${{ env.PROGRAM }}.exe public README.md config.toml.openai.example config.toml.local-llm.example
             ;;
           *)
-            tar czf ${{ env.PROGRAM }}-${{ matrix.filename }} ${{ env.PROGRAM }} public config.toml.example
+            tar czf ${{ env.PROGRAM }}-${{ matrix.filename }} ${{ env.PROGRAM }} public README.md config.toml.*.example
             ;;
           esac;
 
