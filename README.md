@@ -1,6 +1,6 @@
 # read2mind
 
-A self-hosted reading manager: save articles and videos, take notes, track what to read, and get AI-generated summaries and mind maps for saved content.
+A self-hosted reading manager: save articles and YouTube transcriptions, take notes, track what to read, and get AI-generated summaries and mind maps for saved content.
 
 > [!WARNING]
 > **Localhost only.** Currently, there is no authorization/authentication, so anyone who can reach the server can read and modify all data. Do not expose this to the internet or a shared network unless you put it behind an access control layer.
