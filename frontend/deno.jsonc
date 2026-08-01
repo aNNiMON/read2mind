@@ -28,6 +28,6 @@
     "vite": "npm:vite@^8.1.5",
     "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@^6.0.8",
     "unplugin-icons/vite": "npm:unplugin-icons@^23.0.1/vite",
-    "@iconify-json/lucide": "npm:@iconify-json/lucide@^1.2.116"
+    "@iconify-json/lucide": "npm:@iconify-json/lucide@^1.2.120"
   }
 }
