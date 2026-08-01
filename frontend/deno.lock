@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@iconify-json/lucide@^1.2.116": "1.2.116",
+    "npm:@iconify-json/lucide@^1.2.120": "1.2.121",
     "npm:@vitejs/plugin-vue@^6.0.8": "6.0.8_vite@8.1.5_vue@3.5.40__typescript@6.0.3",
     "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.40__typescript@6.0.3",
     "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.40__typescript@6.0.3",
@@ -71,8 +71,8 @@
         "@babel/runtime"
       ]
     },
-    "@iconify-json/lucide@1.2.116": {
-      "integrity": "sha512-mbwPmiUXaZyLMSeQOxiTqz2fmZikD9qiGnMBiev47UUNY9uGCEgMg9iUYwaJzCtJTDtAIyK4vokfIpqsVorgSw==",
+    "@iconify-json/lucide@1.2.121": {
+      "integrity": "sha512-zSoQQSmsyFaeTpSwURHJ9PIrsDcGFpDNhGlpiTrs+Ua4uFeH5UsE26L4OEBLrgLWoSK0UO+JhsO8yehSw0403g==",
       "dependencies": [
         "@iconify/types"
       ]
@@ -1125,7 +1125,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:@iconify-json/lucide@^1.2.116",
+      "npm:@iconify-json/lucide@^1.2.120",
       "npm:@vitejs/plugin-vue@^6.0.8",
       "npm:@vue/tsconfig@~0.9.1",
       "npm:dompurify@^3.4.12",
