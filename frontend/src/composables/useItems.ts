@@ -149,23 +149,16 @@ export default function useItems() {
    */
   const addItem = async (
     kind: ItemKind,
-    payload: CreateItemPayload & { html?: string; transcript?: string },
+    payload: CreateItemPayload,
   ): Promise<CreateResp> => {
     const itemPayload: CreateItemPayload = {
       kind,
       url: (kind === "article" || kind === "video") ? payload.url : undefined,
       title: payload.title ?? "",
+      content: payload.content,
       tags: payload.tags,
       created_at: payload.created_at,
     };
-
-    if (kind === "note" || kind === "task") {
-      itemPayload.content = payload.content;
-    } else if (kind === "video") {
-      itemPayload.content = payload.transcript;
-    } else if (kind === "article") {
-      itemPayload.content = payload.html;
-    }
 
     const response = await itemsApi.createItem(itemPayload);
     if (response.ok) {

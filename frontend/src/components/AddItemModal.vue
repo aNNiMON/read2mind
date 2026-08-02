@@ -28,8 +28,6 @@ const url = ref("");
 const title = ref("");
 const tags = ref<string[]>([]);
 const createdAt = ref("");
-const html = ref("");
-const transcript = ref("");
 const content = ref("");
 
 const submitting = ref(false);
@@ -81,9 +79,8 @@ const submit = async () => {
   if (title.value.trim()) payload.title = title.value.trim();
   if (tags.value.length) payload.tags = tags.value.join(",");
   if (createdAtApiValue) payload.created_at = createdAtApiValue;
-  if (props.kind === "article" && html.value.trim()) payload.html = html.value;
-  if (props.kind === "video" && transcript.value.trim()) payload.transcript = transcript.value;
   if (isText.value) payload.content = content.value;
+  else if (content.value.trim()) payload.content = content.value;
 
   const result = await props.submit(props.kind, payload);
 
@@ -114,20 +111,15 @@ const submit = async () => {
           <input ref="titleInput" v-model="title" type="text" placeholder="" />
         </label>
 
-        <label v-if="isText">
-          <span>Content <em>*</em></span>
-          <textarea v-model="content" rows="6" placeholder="Markdown content"></textarea>
-        </label>
-
-        <label v-if="kind === 'article'">
-          <span>HTML</span>
-          <textarea v-model="html" rows="5" placeholder="Raw HTML content"></textarea>
-        </label>
-
         <label v-if="kind === 'video'">
           <span>Transcript</span>
-          <textarea v-model="transcript" rows="5"
+          <textarea v-model="content" rows="5"
             placeholder="Transcript (Markdown)"></textarea>
+        </label>
+
+        <label v-else>
+          <span>Content <em v-if="isText">*</em></span>
+          <textarea v-model="content" rows="6" placeholder="Markdown content"></textarea>
         </label>
 
         <p v-if="error" class="form-error">{{ error }}</p>

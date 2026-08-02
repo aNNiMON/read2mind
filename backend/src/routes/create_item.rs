@@ -56,24 +56,11 @@ pub async fn handler(
 
     let mut downloads: HashMap<&str, DownloadJob> = HashMap::new();
     let content = match req.kind {
-        ItemKind::Article => {
-            // Fetch title, author and markdown content
-            let fetch_job = FetchJob::new(req.url.unwrap(), req.content.clone());
+        ItemKind::Article | ItemKind::Video => {
+            // Fetch title, author and markdown content / transcript
+            let fetch_job = FetchJob::new(req.url.unwrap());
             let result = fetch_job.run().map_err(AppError::FetchError)?;
-            debug!(?result, "create_item Article");
-            m.title = get_non_empty_title(req.title, result.title);
-            m.author = filter_non_blank(req.author).or_else(|| filter_non_blank(result.author));
-            m.published_at = result.published;
-            if let Some(image) = result.image {
-                downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
-            }
-            Some(result.content)
-        }
-        ItemKind::Video => {
-            // Fetch title, author and transcript
-            let fetch_job = FetchJob::from_url(req.url.unwrap());
-            let result = fetch_job.run().map_err(AppError::FetchError)?;
-            debug!(?result, "create_item Video");
+            debug!(?result, "create_item {:?}", req.kind);
             m.title = get_non_empty_title(req.title, result.title);
             m.author = filter_non_blank(req.author).or_else(|| filter_non_blank(result.author));
             m.published_at = result.published;

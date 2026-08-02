@@ -38,7 +38,7 @@ impl Storage {
     /// Build the item's directory name `YYYYMMDD <sanitized title>`
     pub fn item_path(&self, dt: &DateTime<Local>, title: &str) -> String {
         let sanitized = Self::sanitize_title(title);
-        format!("{} {}", dt.format("%Y%m%d"), &sanitized)
+        format!("{} {}", dt.format("%Y%m%d"), sanitized)
     }
 
     /// Build the item's full path /data/<year>/<YYYYMMDD <sanitized title>>

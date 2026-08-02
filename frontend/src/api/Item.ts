@@ -37,8 +37,6 @@ export interface CreateItemPayload {
   url?: string;
   tags?: string;
   content?: string;
-  html?: string;
-  transcript?: string;
   created_at?: string;
 }
 
