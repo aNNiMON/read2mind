@@ -5,12 +5,29 @@ use reqwest::Url;
 
 use crate::{error::AppError, model::attachment, model::item::ItemKind};
 
+const BYTES_IN_MIB: usize = 1024 * 1024;
+
+const MAX_ATTACHMENT_MB: usize = 50;
+const MAX_ATTACHMENT_SIZE: usize = MAX_ATTACHMENT_MB * BYTES_IN_MIB;
+const MAX_CONTENT_MB: usize = 4;
+pub const MAX_CONTENT_LEN: usize = MAX_CONTENT_MB * BYTES_IN_MIB;
+pub const MAX_BODY_SIZE: usize = MAX_ATTACHMENT_SIZE + 2 * BYTES_IN_MIB;
+
 /// Validates item fields according to item kind
 pub fn validate_item(
     kind: ItemKind,
     url: Option<&String>,
     content: Option<&String>,
 ) -> Result<(), AppError> {
+    if let Some(content) = content {
+        if content.len() > MAX_CONTENT_LEN {
+            return Err(AppError::InvalidRequest(format!(
+                "Content exceeds maximum length of {} MiB",
+                MAX_CONTENT_MB
+            )));
+        }
+    }
+
     match kind {
         ItemKind::Article => {
             if url.is_none() {

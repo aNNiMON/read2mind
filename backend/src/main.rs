@@ -1,4 +1,5 @@
 use axum::Router;
+use axum::extract::DefaultBodyLimit;
 use axum::middleware::from_fn_with_state;
 use axum::routing::{delete, get, post, put};
 use reqwest::Client;
@@ -100,7 +101,8 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             get(routes::secret_validate::handler).route_layer(auth_layer),
         )
         .nest_service("/data", ServeDir::new(&data_dir))
-        .fallback_service(ServeDir::new("./public"));
+        .fallback_service(ServeDir::new("./public"))
+        .layer(DefaultBodyLimit::max(validate::MAX_BODY_SIZE));
 
     #[cfg(debug_assertions)]
     let app = app.layer(
