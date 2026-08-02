@@ -1,4 +1,5 @@
 use axum::Router;
+use axum::middleware::from_fn_with_state;
 use axum::routing::{delete, get, post, put};
 use reqwest::Client;
 use std::path::PathBuf;
@@ -21,6 +22,7 @@ mod config;
 mod db_index;
 mod error;
 mod jobs;
+mod middleware;
 mod model;
 mod routes;
 mod storage;
@@ -65,6 +67,8 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
 
     BuildIndexJob::new(&app_state.storage, &app_state.db).run()?;
 
+    let auth_layer = from_fn_with_state(app_state.clone(), middleware::require_api_secret);
+
     let app = Router::new()
         .route(
             "/api/items",
@@ -91,6 +95,10 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/tags", get(routes::list_tags::handler))
         .route("/api/health", get(routes::health::handler))
         .route("/api/config/ai", get(routes::config_ai::handler))
+        .route(
+            "/api/secrets/validate",
+            get(routes::secret_validate::handler).route_layer(auth_layer),
+        )
         .nest_service("/data", ServeDir::new(&data_dir))
         .fallback_service(ServeDir::new("./public"));
 

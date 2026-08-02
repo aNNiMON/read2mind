@@ -1,10 +1,13 @@
 use std::{fs, path::Path};
 
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub bind_address: String,
+    #[serde(default)]
+    pub api_secret: Option<String>,
     #[serde(default)]
     pub ai: Option<AiConfig>,
 }
@@ -27,6 +30,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             bind_address: "127.0.0.1:8555".to_owned(),
+            api_secret: None,
             ai: Some(Default::default()),
         }
     }
@@ -50,7 +54,13 @@ impl Config {
         let config_path = Path::new("config.toml");
         if config_path.exists() {
             let content = fs::read_to_string(config_path)?;
-            let config: Config = toml::from_str(&content)?;
+            let mut config: Config = toml::from_str(&content)?;
+            // Hash api_secret
+            if let Some(api_secret) = &config.api_secret {
+                let digest = Sha256::digest(api_secret.as_bytes());
+                let hashed: String = digest.iter().map(|b| format!("{:02x}", b)).collect();
+                config.api_secret = Some(hashed);
+            }
             Ok(config)
         } else {
             Ok(Self::default())

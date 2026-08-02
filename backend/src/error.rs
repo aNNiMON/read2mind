@@ -14,6 +14,7 @@ pub enum AppError {
     DbError(String),
     ConfigError(String),
     AiError(String),
+    Unauthorized(String),
 }
 
 impl std::fmt::Display for AppError {
@@ -26,6 +27,7 @@ impl std::fmt::Display for AppError {
             AppError::DbError(m) => ("DbError", m),
             AppError::ConfigError(m) => ("ConfigError", m),
             AppError::AiError(m) => ("AiError", m),
+            AppError::Unauthorized(m) => ("Unauthorized", m),
         };
         write!(f, "{kind}: {msg}")
     }
@@ -43,6 +45,7 @@ impl IntoResponse for AppError {
             AppError::DbError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AppError::ConfigError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AppError::AiError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+            AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg),
         };
         let body = json!({ "error": error_message });
         (status, Json(body)).into_response()
