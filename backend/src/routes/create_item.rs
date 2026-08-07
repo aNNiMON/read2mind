@@ -33,7 +33,11 @@ pub struct CreateItemRequest {
     #[serde(default)]
     pub tags: Option<String>,
     #[serde(default)]
+    pub cover_url: Option<String>,
+    #[serde(default)]
     pub created_at: Option<String>,
+    #[serde(default)]
+    pub published_at: Option<String>,
 }
 
 pub async fn handler(
@@ -57,17 +61,41 @@ pub async fn handler(
     let mut downloads: HashMap<&str, DownloadJob> = HashMap::new();
     let content = match req.kind {
         ItemKind::Article | ItemKind::Video => {
-            // Fetch title, author and markdown content / transcript
-            let fetch_job = FetchJob::new(req.url.unwrap());
-            let result = fetch_job.run().map_err(AppError::FetchError)?;
+            let skip_fetch = req.title.is_some() && req.content.is_some();
+            let result = if skip_fetch {
+                // Skip fetching
+                FetchResult {
+                    content: req.content.unwrap(),
+                    title: get_non_empty_title(req.title, None),
+                    author: req.author,
+                    published: req.published_at,
+                    image: req.cover_url,
+                }
+            } else {
+                // Fetch title, author and markdown content / transcript
+                let fetch_job = FetchJob::new(req.url.unwrap());
+                let result = fetch_job.run().map_err(AppError::FetchError)?;
+                debug!(?result, "create_item decruft result {:?}", req.kind);
+                FetchResult {
+                    content: result.content,
+                    title: get_non_empty_title(req.title, result.title),
+                    author: filter_non_blank(req.author)
+                        .or_else(|| filter_non_blank(result.author)),
+                    published: filter_non_blank(req.published_at)
+                        .or_else(|| filter_non_blank(result.published)),
+                    image: filter_non_blank(req.cover_url)
+                        .or_else(|| filter_non_blank(result.image)),
+                }
+            };
+
             debug!(?result, "create_item {:?}", req.kind);
-            m.title = get_non_empty_title(req.title, result.title);
-            m.author = filter_non_blank(req.author).or_else(|| filter_non_blank(result.author));
+            m.title = result.title;
+            m.author = result.author;
             m.published_at = result.published;
             if let Some(image) = result.image {
                 downloads.insert(BANNER_FILE_NAME, DownloadJob::new(state.client, image));
             }
-            req.content.or(Some(result.content))
+            Some(result.content)
         }
         ItemKind::Note => {
             m.title = get_non_empty_title(req.title, None);
@@ -105,4 +133,13 @@ pub async fn handler(
     db_index::add_item(&state.db, &item)?;
 
     Ok(Json(item))
+}
+
+#[derive(Debug)]
+struct FetchResult {
+    title: String,
+    content: String,
+    author: Option<String>,
+    published: Option<String>,
+    image: Option<String>,
 }
