@@ -15,6 +15,7 @@ use crate::{
 pub struct ListItemsRequest {
     pub kind: Option<String>,
     pub status: Option<String>,
+    pub keyword: Option<String>,
     pub date: Option<String>,
     pub author: Option<String>,
     pub tags: Option<String>,
@@ -35,6 +36,7 @@ impl From<ListItemsRequest> for ItemsFilter {
             kind: value.kind,
             status: value.status,
             date: value.date,
+            keyword: value.keyword,
             author: value.author,
             include_tags,
             exclude_tags,

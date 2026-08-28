@@ -15,6 +15,7 @@ pub struct ItemsFilter {
     pub kind: Option<String>,
     pub status: Option<String>,
     pub date: Option<String>,
+    pub keyword: Option<String>,
     pub author: Option<String>,
     pub include_tags: Vec<String>,
     pub exclude_tags: Vec<String>,
@@ -50,6 +51,7 @@ fn init_schema(conn: &Connection) -> Result<(), AppError> {
         );
         CREATE INDEX IF NOT EXISTS idx_items_kind ON items(kind);
         CREATE INDEX IF NOT EXISTS idx_items_status ON items(status);
+        CREATE INDEX IF NOT EXISTS idx_items_title ON items(title);
         CREATE INDEX IF NOT EXISTS idx_items_author ON items(author);
         CREATE INDEX IF NOT EXISTS idx_items_created_at ON items(created_at);
         CREATE INDEX IF NOT EXISTS idx_tags_tag ON tags(tag);
@@ -125,6 +127,10 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<(Vec<Item>, usiz
     if let Some(date) = &filter.date {
         filter_sql.push_str(" AND date(created_at) = ?");
         params.push(Box::new(date));
+    }
+    if let Some(keyword) = &filter.keyword {
+        filter_sql.push_str(" AND title LIKE ?");
+        params.push(Box::new(format!("%{}%", keyword)));
     }
     if let Some(author) = &filter.author {
         filter_sql.push_str(" AND author = ?");

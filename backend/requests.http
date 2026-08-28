@@ -8,10 +8,6 @@ GET {{base.url}}/api/items
 # @name List articles only
 GET {{base.url}}/api/items?kind=article
 
-### List bookmarks only
-# @name List bookmarks only
-GET {{base.url}}/api/items?kind=bookmark
-
 ### List notes only
 # @name List notes only
 GET {{base.url}}/api/items?kind=note
@@ -35,6 +31,10 @@ GET {{base.url}}/api/items?status=done
 ### List items by date
 # @name List items by date
 GET {{base.url}}/api/items?date=2026-06-06
+
+### List items by keyword
+# @name List items by keyword
+GET {{base.url}}/api/items?keyword=easy
 
 ### List items by author
 # @name List items by author
