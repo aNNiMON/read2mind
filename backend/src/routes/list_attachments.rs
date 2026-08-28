@@ -12,11 +12,18 @@ use crate::{
 };
 
 #[derive(Debug, Serialize)]
+pub struct AttachmentInfo {
+    pub name: String,
+    pub size: u64,
+}
+
+#[derive(Debug, Serialize)]
 pub struct AttachmentsResponse {
     pub path: String,
     pub content: bool,
     pub note: bool,
     pub attachments: Vec<String>,
+    pub metadata: Vec<AttachmentInfo>,
 }
 
 impl From<AttachmentsList> for AttachmentsResponse {
@@ -24,9 +31,16 @@ impl From<AttachmentsList> for AttachmentsResponse {
         let mut att = value.attachments;
         Self {
             path: value.path,
-            content: att.remove(CONTENT_FILE_NAME),
-            note: att.remove(NOTE_FILE_NAME),
-            attachments: att.into_iter().collect(),
+            metadata: att
+                .iter()
+                .map(|(name, meta)| AttachmentInfo {
+                    name: name.clone(),
+                    size: meta.size,
+                })
+                .collect(),
+            content: att.remove(CONTENT_FILE_NAME).is_some(),
+            note: att.remove(NOTE_FILE_NAME).is_some(),
+            attachments: att.keys().cloned().collect(),
         }
     }
 }

@@ -1,5 +1,5 @@
 use std::{
-    collections::HashSet,
+    collections::HashMap,
     fs::{self, File},
     io::{Cursor, Write},
     path::PathBuf,
@@ -25,9 +25,14 @@ pub struct Storage {
 }
 
 #[derive(Debug)]
+pub struct AttachmentMeta {
+    pub size: u64,
+}
+
+#[derive(Debug)]
 pub struct AttachmentsList {
     pub path: String,
-    pub attachments: HashSet<String>,
+    pub attachments: HashMap<String, AttachmentMeta>,
 }
 
 impl Storage {
@@ -149,7 +154,7 @@ impl Storage {
 
     pub fn list_attachments(&self, item_path: &str) -> Result<AttachmentsList, AppError> {
         let dir = self.item_dir(item_path)?;
-        let mut attachments: HashSet<String> = HashSet::new();
+        let mut attachments: HashMap<String, AttachmentMeta> = HashMap::new();
         let entries = fs::read_dir(&dir)
             .map_err(|e| AppError::FsError(format!("Failed to read directory: {e}")))?;
         for entry in entries {
@@ -157,7 +162,15 @@ impl Storage {
                 entry.map_err(|e| AppError::FsError(format!("Failed to read directory: {e}")))?;
             let fname = entry.file_name();
             let fname_str = fname.to_string_lossy();
-            attachments.insert(fname_str.to_string());
+            let metadata = fs::metadata(&entry.path()).map_err(|e| {
+                AppError::FsError(format!("Failed to get metadata for {fname_str}: {e}"))
+            })?;
+            attachments.insert(
+                fname_str.to_string(),
+                AttachmentMeta {
+                    size: metadata.len(),
+                },
+            );
         }
         attachments.remove(METADATA_FILE_NAME);
         Ok(AttachmentsList {
