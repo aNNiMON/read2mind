@@ -39,6 +39,7 @@ const {
 
 const addKind = ref<ItemKind | null>(null);
 const showSettings = ref(false);
+const searchText = ref("");
 
 // On mobile the item list is an off-canvas drawer.
 const drawerOpen = ref(false);
@@ -46,6 +47,16 @@ const drawerOpen = ref(false);
 const onSelect = (item: Item) => {
   select(item);
   drawerOpen.value = false;
+};
+
+const searchByTag = (value: string) => {
+  searchText.value = value;
+  search(value);
+};
+
+const clearAll = () => {
+  searchText.value = "";
+  clearFilters();
 };
 </script>
 
@@ -72,15 +83,17 @@ const onSelect = (item: Item) => {
     :kind="activeKind"
     :status="activeStatus"
     :date="activeDate"
+    :search-text="searchText"
     :all-tags="allTags"
     @select="onSelect"
     @settings="showSettings = true"
     @add="addKind = $event"
     @search="search"
+    @update:search-text="searchText = $event"
     @kind="setKind"
     @status="setStatus"
     @date="setDate"
-    @clear="clearFilters"
+    @clear="clearAll"
     @load-more="loadMore"
   />
 
@@ -94,6 +107,7 @@ const onSelect = (item: Item) => {
     :delete-item="deleteItem"
     :delete-attachment="deleteAttachment"
     :upload-attachment="uploadAttachment"
+    @search-by-tag="searchByTag"
   />
 
   <AddItemModal

@@ -8,6 +8,7 @@ const props = defineProps<{
   kind: ItemKind | null;
   status: ItemStatus | null;
   date: string | null;
+  hasSearch: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -31,7 +32,7 @@ const activeKindMeta = computed(() => kindMeta(props.kind));
 const activeStatusMeta = computed(() => statusMeta(props.status));
 
 const hasFilters = computed(
-  () => props.kind !== null || props.status !== null || props.date !== null,
+  () => props.hasSearch || props.kind !== null || props.status !== null || props.date !== null,
 );
 
 const onKind = (kind: ItemKind | null) => {

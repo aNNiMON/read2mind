@@ -41,6 +41,10 @@ const props = defineProps<{
   uploadAttachment: (path: string, file: File) => Promise<UploadResp>;
 }>();
 
+const emit = defineEmits<{
+  (e: "search-by-tag", value: string): void;
+}>();
+
 const statusLabel = (status: ItemStatus | undefined) =>
   STATUSES.find((option) => option.value === status)?.label ?? STATUSES[0].label;
 
@@ -107,6 +111,11 @@ const startResize = (event: MouseEvent) => {
   document.body.style.userSelect = "none";
   window.addEventListener("mousemove", onResizeMove);
   window.addEventListener("mouseup", stopResize);
+};
+
+const searchByTag = (tag: string) => {
+  const searchTag = /\s/.test(tag) ? `tag:"${tag}"` : `#${tag}`;
+  emit("search-by-tag", searchTag);
 };
 
 onBeforeUnmount(stopResize);
@@ -359,7 +368,13 @@ const onUploaded = () => {
           <div class="view-tags-row">
             <template v-if="!editingTags">
               <div v-if="item.tags.length" class="view-tags">
-                <span v-for="tag in item.tags" :key="tag" class="tag">
+                <span
+                  v-for="tag in item.tags"
+                  :key="tag"
+                  class="tag"
+                  title="Add to search"
+                  @click="searchByTag(tag)"
+                >
                   {{ tag }}
                   <span class="tag-count">{{ tagsFreq[tag] || 1 }}</span>
                 </span>
@@ -846,6 +861,7 @@ const onUploaded = () => {
   border-radius: 0.625rem;
   color: var(--accent);
   background: var(--accent-bg);
+  cursor: pointer;
 }
 .tag-count {
   font-size: 0.75rem;

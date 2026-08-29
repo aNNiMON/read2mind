@@ -25,8 +25,8 @@ const PAGE_SIZE = 50;
 /** Parse text search and extract keyword, tags, tags exclusions. */
 export function parseQuery(input: string): ItemQuery {
   let keyword = "";
-  const tags = [];
-  const excludeTags = [];
+  const tags: string[] = [];
+  const excludeTags: string[] = [];
   const tagPattern = /(?:^|\s)(-?)(?:#|tag:)(?:"([^"]*)"|([^\s]+))/gi;
 
   let end = 0;
@@ -144,6 +144,7 @@ export default function useItems() {
   };
 
   const clearFilters = () => {
+    searchQuery.value = {};
     activeKind.value = null;
     activeStatus.value = null;
     activeDate.value = null;

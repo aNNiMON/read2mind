@@ -18,12 +18,14 @@ const props = defineProps<{
   kind: ItemKind | null;
   status: ItemStatus | null;
   date: string | null;
+  searchText: string;
   allTags?: TagFreq[];
 }>();
 
 const emit = defineEmits<{
   (e: "select", item: Item): void;
   (e: "search", query: string): void;
+  (e: "update:searchText", value: string): void;
   (e: "settings"): void;
   (e: "add", kind: ItemKind): void;
   (e: "kind", kind: ItemKind | null): void;
@@ -41,7 +43,10 @@ const onScroll = (event: Event) => {
   }
 };
 
-const query = ref("");
+const query = computed({
+  get: () => props.searchText,
+  set: (value: string) => emit("update:searchText", value),
+});
 const showAddMenu = ref(false);
 const searchInputEl = ref<HTMLInputElement | null>(null);
 const suggestOpen = ref(false);
@@ -225,6 +230,7 @@ const onAdd = (kind: ItemKind) => {
         :kind="kind"
         :status="status"
         :date="date"
+        :has-search="Boolean(query.trim())"
         @kind="emit('kind', $event)"
         @status="emit('status', $event)"
         @date="emit('date', $event)"
