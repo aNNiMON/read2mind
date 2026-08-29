@@ -17,7 +17,6 @@ const props = defineProps<{
   selected: Item | null;
   kind: ItemKind | null;
   status: ItemStatus | null;
-  date: string | null;
   searchText: string;
   allTags?: TagFreq[];
 }>();
@@ -30,7 +29,6 @@ const emit = defineEmits<{
   (e: "add", kind: ItemKind): void;
   (e: "kind", kind: ItemKind | null): void;
   (e: "status", status: ItemStatus | null): void;
-  (e: "date", date: string | null): void;
   (e: "clear"): void;
   (e: "load-more"): void;
 }>();
@@ -229,11 +227,9 @@ const onAdd = (kind: ItemKind) => {
       <ItemFilters
         :kind="kind"
         :status="status"
-        :date="date"
         :has-search="Boolean(query.trim())"
         @kind="emit('kind', $event)"
         @status="emit('status', $event)"
-        @date="emit('date', $event)"
         @clear="emit('clear')"
       />
     </header>

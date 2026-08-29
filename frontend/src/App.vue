@@ -20,13 +20,11 @@ const {
   loadTags,
   activeKind,
   activeStatus,
-  activeDate,
   selected,
   select,
   search,
   setKind,
   setStatus,
-  setDate,
   clearFilters,
   addItem,
   updateItem,
@@ -82,7 +80,6 @@ const clearAll = () => {
     :selected="selected"
     :kind="activeKind"
     :status="activeStatus"
-    :date="activeDate"
     :search-text="searchText"
     :all-tags="allTags"
     @select="onSelect"
@@ -92,7 +89,6 @@ const clearAll = () => {
     @update:search-text="searchText = $event"
     @kind="setKind"
     @status="setStatus"
-    @date="setDate"
     @clear="clearAll"
     @load-more="loadMore"
   />

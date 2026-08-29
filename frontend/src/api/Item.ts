@@ -101,8 +101,9 @@ export interface ItemQuery {
   kind?: ItemKind;
   status?: ItemStatus;
   keyword?: string;
-  /** Single-day filter in `YYYY-MM-DD` format. */
-  date?: string;
+  /** Date filter in `YYYY-MM-DD` format */
+  after?: string;
+  before?: string;
   /** Max number of items to return. */
   limit?: number;
   /** Number of items to skip, for pagination. */

@@ -84,7 +84,8 @@ export default class ItemsApi {
       if (query.kind) params.set("kind", query.kind);
       if (query.status) params.set("status", query.status);
       if (query.keyword) params.set("keyword", query.keyword);
-      if (query.date) params.set("date", query.date);
+      if (query.after) params.set("after", query.after);
+      if (query.before) params.set("before", query.before);
       params.set("limit", String(query.limit ?? 50));
       params.set("offset", String(query.offset ?? 0));
 

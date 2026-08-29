@@ -2,23 +2,20 @@
 import { computed, ref } from "vue";
 import type { ItemKind, ItemStatus } from "../api/Item";
 import { kindMeta, KINDS, STATUSES, statusMeta } from "../api/meta";
-import IconCalendar from "~icons/lucide/calendar";
 
 const props = defineProps<{
   kind: ItemKind | null;
   status: ItemStatus | null;
-  date: string | null;
   hasSearch: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "kind", kind: ItemKind | null): void;
   (e: "status", status: ItemStatus | null): void;
-  (e: "date", date: string | null): void;
   (e: "clear"): void;
 }>();
 
-type Panel = "kind" | "status" | "date" | null;
+type Panel = "kind" | "status" | null;
 const open = ref<Panel>(null);
 
 const toggle = (panel: Panel) => {
@@ -32,7 +29,7 @@ const activeKindMeta = computed(() => kindMeta(props.kind));
 const activeStatusMeta = computed(() => statusMeta(props.status));
 
 const hasFilters = computed(
-  () => props.hasSearch || props.kind !== null || props.status !== null || props.date !== null,
+  () => props.hasSearch || props.kind !== null || props.status !== null,
 );
 
 const onKind = (kind: ItemKind | null) => {
@@ -42,10 +39,6 @@ const onKind = (kind: ItemKind | null) => {
 const onStatus = (status: ItemStatus | null) => {
   emit("status", status);
   close();
-};
-const onDate = (event: Event) => {
-  const value = (event.target as HTMLInputElement).value;
-  emit("date", value || null);
 };
 </script>
 
@@ -117,35 +110,6 @@ const onDate = (event: Event) => {
           </button>
         </li>
       </ul>
-    </div>
-
-    <!-- Date -->
-    <div class="filter">
-      <button
-        type="button"
-        class="chip icon-chip"
-        :class="{ active: date !== null }"
-        aria-haspopup="dialog"
-        :aria-expanded="open === 'date'"
-        title="Filter by date"
-        @click="toggle('date')"
-      >
-        <IconCalendar />
-      </button>
-      <div v-if="open === 'date'" class="menu date-menu" role="dialog">
-        <input
-          class="date-input"
-          type="date"
-          :value="date ?? ''"
-          @input="onDate"
-        />
-        <a
-          v-if="date"
-          class="clear-date"
-          href="#"
-          @click.prevent="emit('date', null)"
-        >Clear date</a>
-      </div>
     </div>
 
     <a
@@ -243,27 +207,6 @@ const onDate = (event: Event) => {
 .menu button:hover {
   background: var(--accent-bg);
   color: var(--accent);
-}
-.date-menu {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-}
-.date-input {
-  font: inherit;
-  font-size: 0.875rem;
-  padding: 0.4em 0.55em;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  background: var(--bg);
-  color: var(--text-h);
-}
-.clear-date {
-  font-size: 0.8125rem;
-  color: var(--accent);
-  text-decoration: underline;
 }
 .clear-all {
   margin-left: auto;

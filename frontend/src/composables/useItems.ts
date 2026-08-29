@@ -1,5 +1,6 @@
 import { ref, watch } from "vue";
 import ItemsApi from "../api/ItemsApi.ts";
+import { SearchParser } from "../utils/search.ts";
 import type {
   AttachmentMetadata,
   CreateItemPayload,
@@ -19,32 +20,9 @@ import type {
 } from "../api/Item.ts";
 
 const itemsApi = new ItemsApi();
+const searchParser = new SearchParser();
 
 const PAGE_SIZE = 50;
-
-/** Parse text search and extract keyword, tags, tags exclusions. */
-export function parseQuery(input: string): ItemQuery {
-  let keyword = "";
-  const tags: string[] = [];
-  const excludeTags: string[] = [];
-  const tagPattern = /(?:^|\s)(-?)(?:#|tag:)(?:"([^"]*)"|([^\s]+))/gi;
-
-  let end = 0;
-  let match = null;
-  while ((match = tagPattern.exec(input)) !== null) {
-    keyword += input.slice(end, match.index);
-    const tag = (match[2] ?? match[3] ?? "").trim();
-    if (tag) (match[1] === "-" ? excludeTags : tags).push(tag);
-    end = tagPattern.lastIndex;
-  }
-  keyword += input.slice(end);
-  keyword = keyword.replace(/\s+/g, " ").trim();
-  return {
-    keyword: keyword || undefined,
-    tags,
-    exclude: excludeTags,
-  };
-}
 
 export default function useItems() {
   const items = ref<Item[]>([]);
@@ -56,7 +34,6 @@ export default function useItems() {
   const searchQuery = ref<ItemQuery>({});
   const activeKind = ref<ItemKind | null>(null);
   const activeStatus = ref<ItemStatus | null>(null);
-  const activeDate = ref<string | null>(null);
   // All known tag names, sorted by descending usage count. Feeds the tags editor's suggestions.
   const allTags = ref<TagFreq[]>([]);
 
@@ -77,7 +54,6 @@ export default function useItems() {
       ...searchQuery.value,
       kind: activeKind.value ?? undefined,
       status: activeStatus.value ?? undefined,
-      date: activeDate.value ?? undefined,
       limit: PAGE_SIZE,
       offset: 0,
     });
@@ -106,7 +82,6 @@ export default function useItems() {
       ...searchQuery.value,
       kind: activeKind.value ?? undefined,
       status: activeStatus.value ?? undefined,
-      date: activeDate.value ?? undefined,
       limit: PAGE_SIZE,
       offset: items.value.length,
     });
@@ -124,7 +99,7 @@ export default function useItems() {
   };
 
   const search = (input: string) => {
-    searchQuery.value = parseQuery(input);
+    searchQuery.value = searchParser.parseQuery(input);
     return load();
   };
 
@@ -138,16 +113,10 @@ export default function useItems() {
     return load();
   };
 
-  const setDate = (date: string | null) => {
-    activeDate.value = date || null;
-    return load();
-  };
-
   const clearFilters = () => {
     searchQuery.value = {};
     activeKind.value = null;
     activeStatus.value = null;
-    activeDate.value = null;
     return load();
   };
 
@@ -338,14 +307,12 @@ export default function useItems() {
     loadTags,
     activeKind,
     activeStatus,
-    activeDate,
     selected,
     select,
     reload: load,
     search,
     setKind,
     setStatus,
-    setDate,
     clearFilters,
     addItem,
     updateItem,
