@@ -94,12 +94,13 @@ export type AiFeature = "summary" | "mindmap";
 
 export type GenerateAiResp = { ok: true } | { ok: false; error: string };
 
-/** Query for tag-based filtering: included tags are AND-ed, excluded tags are `!`-prefixed. */
+/** Query filters */
 export interface ItemQuery {
   tags?: string[];
   exclude?: string[];
   kind?: ItemKind;
   status?: ItemStatus;
+  keyword?: string;
   /** Single-day filter in `YYYY-MM-DD` format. */
   date?: string;
   /** Max number of items to return. */

@@ -47,25 +47,34 @@ const searchInputEl = ref<HTMLInputElement | null>(null);
 const suggestOpen = ref(false);
 const activeIndex = ref(0);
 
-// The comma-separated segment currently being typed, e.g. "foo, !ba" -> "!ba".
-const currentSegment = computed(() => {
-  const segments = query.value.split(",");
-  return segments[segments.length - 1];
-});
+// Tag suggestion activated by # or `tag:`.
+const activeTag = computed(() => query.value.match(/(^|\s)(-?)(tag:|#)(?:"[^"]*|[^\s]*)$/i));
 
-// Tags already present in earlier segments, so they're excluded from suggestions.
+// Tags already present before the active tag expression are excluded from suggestions.
 const usedTags = computed(() => {
-  const segments = query.value.split(",");
-  segments.pop();
-  return segments
-    .map((s) => s.trim().replace(/^!/, ""))
-    .filter(Boolean);
+  const beforeActive = activeTag.value
+    ? query.value.slice(0, -activeTag.value[0].length)
+    : query.value;
+  const tagPattern = /(?:^|\s)-?(?:#|tag:)(?:"([^"]*)"|([^\s]+))/gi;
+  const tags: string[] = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = tagPattern.exec(beforeActive)) !== null) {
+    const tag = (match[1] ?? match[2] ?? "").trim();
+    if (tag) tags.push(tag);
+  }
+
+  return tags;
 });
 
 const suggestions = computed(() => {
-  const raw = currentSegment.value.trim();
-  const negate = raw.startsWith("!");
-  const q = (negate ? raw.slice(1) : raw).trim().toLowerCase();
+  const match = activeTag.value;
+  if (!match) return [];
+
+  const q = match[0]
+    .replace(/^\s*-?(tag:|#)/i, "")
+    .replace(/^"/, "")
+    .toLowerCase();
   return (props.allTags ?? [])
     .map((t) => t.name)
     .filter((tag) => !usedTags.value.includes(tag))
@@ -73,16 +82,27 @@ const suggestions = computed(() => {
 });
 
 const applySuggestion = (tag: string) => {
-  const segments = query.value.split(",");
-  const negate = segments[segments.length - 1].trim().startsWith("!");
-  segments[segments.length - 1] = ` ${negate ? "!" : ""}${tag}`;
-  query.value = segments.join(",").replace(/^ /, "") + ", ";
+  const match = activeTag.value;
+  if (!match) return;
+
+  const prefix = match[1];
+  const negate = match[2];
+  let tagType = match[3];
+  const hasSpace = /\s/.test(tag);
+  let formattedTag = tag;
+  if (hasSpace) {
+    // Disallow #"tag with space", switch to tag:"tag with space" instead.
+    tagType = "tag:";
+    formattedTag = `"${tag}"`;
+  }
+  query.value = query.value.slice(0, -match[0].length) +
+    `${prefix}${negate}${tagType}${formattedTag} `;
   activeIndex.value = 0;
   searchInputEl.value?.focus();
 };
 
 const onSearchInput = () => {
-  suggestOpen.value = true;
+  suggestOpen.value = Boolean(activeTag.value);
   activeIndex.value = 0;
 };
 
@@ -147,10 +167,10 @@ const onAdd = (kind: ItemKind) => {
             class="search-input"
             type="search"
             placeholder="search"
-            aria-label="Search items by tag"
+            aria-label="Search items by keyword or tag"
             autocomplete="off"
             @input="onSearchInput"
-            @focus="suggestOpen = true"
+            @focus="suggestOpen = Boolean(activeTag)"
             @blur="onSearchBlur"
             @search="onSearch"
             @keydown.down.prevent="moveActive(1)"

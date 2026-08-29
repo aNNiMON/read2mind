@@ -22,23 +22,28 @@ const itemsApi = new ItemsApi();
 
 const PAGE_SIZE = 50;
 
-/** Parse a free-text search box into an include/exclude tag query. */
-function parseQuery(input: string): ItemQuery {
-  const tags: string[] = [];
-  const exclude: string[] = [];
+/** Parse text search and extract keyword, tags, tags exclusions. */
+export function parseQuery(input: string): ItemQuery {
+  let keyword = "";
+  const tags = [];
+  const excludeTags = [];
+  const tagPattern = /(?:^|\s)(-?)(?:#|tag:)(?:"([^"]*)"|([^\s]+))/gi;
 
-  for (const raw of input.split(",")) {
-    const term = raw.trim();
-    if (!term) continue;
-    if (term.startsWith("!")) {
-      const value = term.slice(1).trim();
-      if (value) exclude.push(value);
-    } else {
-      tags.push(term);
-    }
+  let end = 0;
+  let match = null;
+  while ((match = tagPattern.exec(input)) !== null) {
+    keyword += input.slice(end, match.index);
+    const tag = (match[2] ?? match[3] ?? "").trim();
+    if (tag) (match[1] === "-" ? excludeTags : tags).push(tag);
+    end = tagPattern.lastIndex;
   }
-
-  return { tags, exclude };
+  keyword += input.slice(end);
+  keyword = keyword.replace(/\s+/g, " ").trim();
+  return {
+    keyword: keyword || undefined,
+    tags,
+    exclude: excludeTags,
+  };
 }
 
 export default function useItems() {
@@ -48,7 +53,7 @@ export default function useItems() {
   const error = ref<string | null>(null);
   const total = ref(0);
   const hasMore = ref(false);
-  const search$ = ref<ItemQuery>({});
+  const searchQuery = ref<ItemQuery>({});
   const activeKind = ref<ItemKind | null>(null);
   const activeStatus = ref<ItemStatus | null>(null);
   const activeDate = ref<string | null>(null);
@@ -69,7 +74,7 @@ export default function useItems() {
     error.value = null;
 
     const response = await itemsApi.getItems({
-      ...search$.value,
+      ...searchQuery.value,
       kind: activeKind.value ?? undefined,
       status: activeStatus.value ?? undefined,
       date: activeDate.value ?? undefined,
@@ -98,7 +103,7 @@ export default function useItems() {
     loadingMore.value = true;
 
     const response = await itemsApi.getItems({
-      ...search$.value,
+      ...searchQuery.value,
       kind: activeKind.value ?? undefined,
       status: activeStatus.value ?? undefined,
       date: activeDate.value ?? undefined,
@@ -119,7 +124,7 @@ export default function useItems() {
   };
 
   const search = (input: string) => {
-    search$.value = parseQuery(input);
+    searchQuery.value = parseQuery(input);
     return load();
   };
 
