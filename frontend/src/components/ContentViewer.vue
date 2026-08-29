@@ -422,6 +422,12 @@ watch(
 .markdown :deep(p) {
   margin-bottom: 1.4rem;
 }
+.markdown :deep(blockquote) {
+  margin: 0 0 1.4rem;
+  padding-left: 1rem;
+  border-left: 0.25rem solid var(--border);
+  color: var(--text);
+}
 .markdown :deep(.markdown-callout) {
   --callout-color: var(--accent);
   margin: 1rem 0;
