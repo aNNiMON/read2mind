@@ -1,6 +1,8 @@
 import type {
   AiFeature,
   AssetResp,
+  Attachment,
+  AttachmentsResp,
   CreateItemPayload,
   CreateResp,
   DeleteAttachmentResp,
@@ -372,14 +374,7 @@ export default class ItemsApi {
     }
   }
 
-  async getAttachments(
-    path: string,
-  ): Promise<
-    { ok: true; path: string; attachments: string[] } | {
-      ok: false;
-      error: string;
-    }
-  > {
+  async getAttachments(path: string): Promise<AttachmentsResp> {
     try {
       const itemPath = normalizeItemPath(path);
       const response = await this.apiCall(
@@ -388,20 +383,20 @@ export default class ItemsApi {
       );
 
       if (response.ok) {
-        const data = (await response.json()) as {
-          path: string;
-          content: boolean;
-          note: boolean;
-          attachments: string[];
-        };
-        const assets = [...data.attachments];
+        const data: Attachment = await response.json();
+        const attachments = [...data.attachments];
         if (data.content) {
-          assets.push("content.md");
+          attachments.push("content.md");
         }
         if (data.note) {
-          assets.push("note.md");
+          attachments.push("note.md");
         }
-        return { ok: true, path: data.path, attachments: assets };
+        return {
+          ok: true,
+          path: data.path,
+          attachments,
+          metadata: data.metadata,
+        } as AttachmentsResp;
       }
 
       return {

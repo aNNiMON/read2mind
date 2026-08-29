@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import type { DeleteAttachmentResp, Item, UploadResp } from "../api/Item";
 import ItemsApi from "../api/ItemsApi";
+import { formatFileSize } from "../utils/format";
 import IconCopy from "~icons/lucide/copy";
 import IconTrash from "~icons/lucide/trash-2";
 import IconUpload from "~icons/lucide/upload";
@@ -76,8 +77,12 @@ const uploadFile = async (file: File) => {
   const response = await props.uploadAttachment(props.item.path, file);
 
   uploading.value = false;
-
-  if (!response.ok) {
+  if (response.ok) {
+    props.item.attachmentsMetadata[file.name] = {
+      name: file.name,
+      size: file.size,
+    };
+  } else {
     uploadError.value = response.error;
   }
 };
@@ -129,6 +134,7 @@ const onDrop = (event: DragEvent) => {
             target="_blank"
             rel="noopener noreferrer"
           >{{ filename }}</a>
+          <span class="attach-size">{{ formatFileSize(props.item.attachmentsMetadata[filename]?.size ?? 0) }}</span>
           <button
             type="button"
             class="attach-copy"
@@ -262,6 +268,11 @@ const onDrop = (event: DragEvent) => {
 .attach-name:hover {
   color: var(--accent);
   text-decoration: underline;
+}
+.attach-size {
+  font-size: 0.75rem;
+  color: var(--text);
+  opacity: 0.7;
 }
 .attach-copy {
   flex: 0 0 auto;

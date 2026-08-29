@@ -9,3 +9,13 @@ export function formatDate(iso: string): string {
     `${pad(date.getHours())}:${pad(date.getMinutes())}`
   );
 }
+
+export function formatFileSize(size: number): string {
+  const values = ["B", "KB", "MB", "GB", "TB"];
+  let index = 0;
+  while (size >= 1024 && index < values.length - 1) {
+    size /= 1024;
+    index++;
+  }
+  return `${size.toFixed(index >= 1 ? 2 : 0)} ${values[index]}`;
+}

@@ -1,6 +1,7 @@
 import { ref, watch } from "vue";
 import ItemsApi from "../api/ItemsApi.ts";
 import type {
+  AttachmentMetadata,
   CreateItemPayload,
   CreateResp,
   DeleteAttachmentResp,
@@ -306,8 +307,12 @@ export default function useItems() {
           newItem.assetPath = res.path;
         }
         newItem.assets = res.attachments;
+        newItem.attachmentsMetadata = Object.fromEntries(
+          res.metadata.map((meta) => [meta.name, meta]),
+        ) as Record<string, AttachmentMetadata>;
       } else {
         newItem.assets = [];
+        newItem.attachmentsMetadata = {};
       }
     }
   });

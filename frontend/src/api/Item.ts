@@ -17,6 +17,7 @@ export interface Item {
   author?: string;
   name: string;
   assets: string[];
+  attachmentsMetadata: Record<string, AttachmentMetadata>;
   tags: string[];
   created_at: string;
   kind?: ItemKind;
@@ -43,6 +44,23 @@ export interface CreateItemPayload {
 export type AssetResp =
   | { ok: true; body: string; contentType: string }
   | { ok: false; status?: number; error: string };
+
+export interface AttachmentMetadata {
+  name: string;
+  size: number;
+}
+
+export type Attachment = {
+  path: string;
+  content: boolean;
+  note: boolean;
+  attachments: string[];
+  metadata: AttachmentMetadata[];
+};
+
+export type AttachmentsResp =
+  | { ok: true; path: string; attachments: string[]; metadata: AttachmentMetadata[] }
+  | { ok: false; error: string };
 
 export type UploadResp = { ok: true } | { ok: false; error: string };
 
