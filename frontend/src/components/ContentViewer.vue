@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent, ref, toRef, watch } from "vue";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import markedCallouts from "../utils/markdown/callouts";
 import ItemsApi from "../api/ItemsApi";
 import type { Item } from "../api/Item";
 import type { ContentTab } from "../api/contentTypes";
@@ -61,11 +62,13 @@ const buildRenderer = (base: string) => {
 const renderedMarkdown = computed(() => {
   if (props.tab.kind !== "markdown") return "";
   const base = props.item.assetPath ? itemsApi.assetBaseUrl(props.item.assetPath) : "";
-  const html = marked.parse(body.value, {
-    renderer: base ? buildRenderer(base) : undefined,
-    gfm: true,
-    breaks: true,
-  }) as string;
+  const html = marked
+    .use(markedCallouts())
+    .parse(body.value, {
+      renderer: base ? buildRenderer(base) : undefined,
+      gfm: true,
+      breaks: true,
+    }) as string;
   return DOMPurify.sanitize(html);
 });
 
@@ -418,6 +421,52 @@ watch(
 }
 .markdown :deep(p) {
   margin-bottom: 1.4rem;
+}
+.markdown :deep(.markdown-callout) {
+  --callout-color: var(--accent);
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 0.25rem solid var(--callout-color);
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: color-mix(in srgb, var(--callout-color) 10%, transparent);
+}
+.markdown :deep(.markdown-callout-title) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--callout-color);
+  font-weight: 700;
+}
+.markdown :deep(.markdown-callout-title svg) {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+.markdown :deep(.markdown-callout > :last-child) {
+  margin-bottom: 0;
+}
+.markdown :deep(.markdown-callout-warning) {
+  --callout-color: light-dark(#c06e2b, #ef9744);
+}
+.markdown :deep(.markdown-callout-danger),
+.markdown :deep(.markdown-callout-failure),
+.markdown :deep(.markdown-callout-bug) {
+  --callout-color: var(--danger);
+}
+.markdown :deep(.markdown-callout-abstract),
+.markdown :deep(.markdown-callout-tip) {
+  --callout-color: light-dark(#046878, #34d3cc);
+}
+.markdown :deep(.markdown-callout-success) {
+  --callout-color: light-dark(#047857, #34d399);
+}
+.markdown :deep(.markdown-callout-question),
+.markdown :deep(.markdown-callout-info) {
+  --callout-color: light-dark(#1d4ed8, #60a5fa);
+}
+.markdown :deep(.markdown-callout-quote) {
+  --callout-color: light-dark(#686969, #a2a2a2);
 }
 .audio {
   padding: 1.5rem 0;

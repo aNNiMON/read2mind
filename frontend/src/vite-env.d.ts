@@ -10,3 +10,8 @@ declare module "*.vue" {
   >;
   export default component;
 }
+
+declare module "~icons/*?raw" {
+  const value: string;
+  export default value;
+}
