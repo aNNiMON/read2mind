@@ -14,7 +14,8 @@ pub type DbIndex = Arc<Mutex<Connection>>;
 pub struct ItemsFilter {
     pub kind: Option<String>,
     pub status: Option<String>,
-    pub date: Option<String>,
+    pub before: Option<String>,
+    pub after: Option<String>,
     pub keyword: Option<String>,
     pub author: Option<String>,
     pub include_tags: Vec<String>,
@@ -124,8 +125,12 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<(Vec<Item>, usiz
         filter_sql.push_str(" AND status = ?");
         params.push(Box::new(status));
     }
-    if let Some(date) = &filter.date {
-        filter_sql.push_str(" AND date(created_at) = ?");
+    if let Some(date) = &filter.after {
+        filter_sql.push_str(" AND date(created_at) >= ?");
+        params.push(Box::new(date));
+    }
+    if let Some(date) = &filter.before {
+        filter_sql.push_str(" AND date(created_at) <= ?");
         params.push(Box::new(date));
     }
     if let Some(keyword) = &filter.keyword {
