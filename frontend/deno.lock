@@ -6,7 +6,7 @@
     "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.40__typescript@6.0.3",
     "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.40__typescript@6.0.3",
     "npm:dompurify@^3.4.12": "3.4.12",
-    "npm:marked@^18.0.7": "18.0.7",
+    "npm:marked@^18.0.11": "18.0.11",
     "npm:markmap-lib@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:markmap-view@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:unplugin-icons@^23.0.1": "23.0.1",
@@ -838,8 +838,8 @@
       ],
       "bin": true
     },
-    "marked@18.0.7": {
-      "integrity": "sha512-iDVQ5ldaiKXn6b2JroX5kgRfmwgqolW7NpaEzTl1k/2Zh1njIEN9yniyLV/mOvWwtsE8OGgkjsCYvijuPk1dtA==",
+    "marked@18.0.11": {
+      "integrity": "sha512-HnslJfsZkRPBDJRHvVtAaWlZHEpSu7u8LgQuJCELjRKuWR+hpq4A7sLq3p8HaI9ypVoXDXxV34CsQJEe1+J5Aw==",
       "bin": true
     },
     "markmap-common@0.18.9": {
@@ -1129,7 +1129,7 @@
       "npm:@vitejs/plugin-vue@^6.0.8",
       "npm:@vue/tsconfig@~0.9.1",
       "npm:dompurify@^3.4.12",
-      "npm:marked@^18.0.7",
+      "npm:marked@^18.0.11",
       "npm:markmap-lib@~0.18.12",
       "npm:markmap-view@~0.18.12",
       "npm:unplugin-icons@^23.0.1",
