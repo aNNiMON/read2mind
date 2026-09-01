@@ -5,7 +5,7 @@
     "npm:@vitejs/plugin-vue@^6.0.8": "6.0.8_vite@8.1.5_vue@3.5.40__typescript@6.0.3",
     "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.40__typescript@6.0.3",
     "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.40__typescript@6.0.3",
-    "npm:dompurify@^3.4.12": "3.4.12",
+    "npm:dompurify@^3.4.14": "3.4.14",
     "npm:marked@^18.0.7": "18.0.7",
     "npm:markmap-lib@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:markmap-view@~0.18.12": "0.18.12_markmap-common@0.18.9",
@@ -639,8 +639,8 @@
         "domelementtype"
       ]
     },
-    "dompurify@3.4.12": {
-      "integrity": "sha512-zQvGet8Z2sWbQhCmfFz/T5QWH2oBmjnqK3qvOjaqaNLrLEF912WamU+ohnTp0TCep/MFVHpdJuCZEdFOdTnEFg==",
+    "dompurify@3.4.14": {
+      "integrity": "sha512-dVoH9z+MY+C9IilgGCk3YfFqjLi3fChm2OiKJMzh6axrJ5qwxqWaZamgmHrpv22CN/KdbZJuGEGgfQoL00LTdg==",
       "optionalDependencies": [
         "@types/trusted-types"
       ]
@@ -1128,7 +1128,7 @@
       "npm:@iconify-json/lucide@^1.2.120",
       "npm:@vitejs/plugin-vue@^6.0.8",
       "npm:@vue/tsconfig@~0.9.1",
-      "npm:dompurify@^3.4.12",
+      "npm:dompurify@^3.4.14",
       "npm:marked@^18.0.7",
       "npm:markmap-lib@~0.18.12",
       "npm:markmap-view@~0.18.12",
