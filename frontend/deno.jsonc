@@ -25,7 +25,7 @@
     "dompurify": "npm:dompurify@^3.4.12",
     "markmap-lib": "npm:markmap-lib@^0.18.12",
     "markmap-view": "npm:markmap-view@^0.18.12",
-    "vite": "npm:vite@^8.1.5",
+    "vite": "npm:vite@^8.2.2",
     "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@^6.0.8",
     "unplugin-icons/vite": "npm:unplugin-icons@^23.0.1/vite",
     "@iconify-json/lucide": "npm:@iconify-json/lucide@^1.2.120"
