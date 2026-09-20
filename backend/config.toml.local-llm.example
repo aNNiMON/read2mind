@@ -8,6 +8,7 @@ bind_address = "127.0.0.1:8555"
 base_url = "http://127.0.0.1:11434/v1"
 api_key_env = ""
 
+summarize_timeout_sec = 45
 summarize_model = "gemma4:e4b"
 summarize_prompt = """
 Summarize the following content responding ONLY with the summary
@@ -19,6 +20,7 @@ You MUST follow the following rules:
 {content}
 """
 
+mindmap_timeout_sec = 60
 mindmap_model = "gemma4:e4b"
 mindmap_prompt = """
 Generate a comprehensive, fact-rich mind map as Markdown headers using the following structure:

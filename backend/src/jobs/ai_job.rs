@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use reqwest::Client;
 use serde_json::json;
 
@@ -13,7 +15,7 @@ pub async fn summarize(
 ) -> Result<AiResponse, String> {
     if let (Some(prompt), Some(model)) = (&config.summarize_prompt, &config.summarize_model) {
         let prompt = prompt.replace("{content}", content);
-        chat_completion(client, config, model, &prompt)
+        chat_completion(client, config, config.summarize_timeout_sec, model, &prompt)
             .await
             .map(Some)
     } else {
@@ -29,7 +31,7 @@ pub async fn mindmap(
 ) -> Result<AiResponse, String> {
     if let (Some(prompt), Some(model)) = (&config.mindmap_prompt, &config.mindmap_model) {
         let prompt = prompt.replace("{content}", content);
-        chat_completion(client, config, model, &prompt)
+        chat_completion(client, config, config.mindmap_timeout_sec, model, &prompt)
             .await
             .map(Some)
     } else {
@@ -41,6 +43,7 @@ pub async fn mindmap(
 async fn chat_completion(
     client: &Client,
     config: &AiConfig,
+    timeout_sec: u16,
     model: &str,
     prompt: &str,
 ) -> Result<String, String> {
@@ -50,7 +53,10 @@ async fn chat_completion(
         "messages": [{ "role": "user", "content": prompt }],
     });
 
-    let mut req = client.post(&url).json(&body);
+    let mut req = client
+        .post(&url)
+        .timeout(Duration::from_secs(timeout_sec as u64))
+        .json(&body);
     if let Ok(key) = std::env::var(&config.api_key_env)
         && !key.is_empty()
     {

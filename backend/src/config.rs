@@ -20,10 +20,14 @@ pub struct AiConfig {
     pub summarize_prompt: Option<String>,
     #[serde(default)]
     pub summarize_model: Option<String>,
+    #[serde(default = "default_timeout_sec")]
+    pub summarize_timeout_sec: u16,
     #[serde(default)]
     pub mindmap_prompt: Option<String>,
     #[serde(default)]
     pub mindmap_model: Option<String>,
+    #[serde(default = "default_timeout_sec")]
+    pub mindmap_timeout_sec: u16,
 }
 
 impl Default for Config {
@@ -45,6 +49,8 @@ impl Default for AiConfig {
             summarize_model: Some("gpt-5-nano".to_owned()),
             mindmap_prompt: Default::default(),
             mindmap_model: Some("gpt-5-nano".to_owned()),
+            summarize_timeout_sec: default_timeout_sec(),
+            mindmap_timeout_sec: default_timeout_sec(),
         }
     }
 }
@@ -66,4 +72,8 @@ impl Config {
             Ok(Self::default())
         }
     }
+}
+
+fn default_timeout_sec() -> u16 {
+    30
 }

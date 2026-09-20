@@ -8,6 +8,7 @@ bind_address = "127.0.0.1:8555"
 base_url = "https://api.openai.com/v1"
 api_key_env = "OPENAI_API_KEY"
 
+summarize_timeout_sec = 20
 summarize_model = "gpt-5.4-nano"
 summarize_prompt = """
 Summarize the following content responding ONLY with the summary
@@ -19,6 +20,7 @@ You MUST follow the following rules:
 {content}
 """
 
+mindmap_timeout_sec = 40
 mindmap_model = "gpt-5.4-nano"
 mindmap_prompt = """
 Generate a comprehensive, fact-rich mind map as Markdown headers using the following structure:
