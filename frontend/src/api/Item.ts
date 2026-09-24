@@ -28,6 +28,10 @@ export type ItemResp =
   | { ok: true; items: Item[]; total: number }
   | { ok: false; error: string };
 
+export type GetItemResp =
+  | { ok: true; item: Item }
+  | { ok: false; status?: number; error: string };
+
 export type CreateResp =
   | { ok: true; item?: Item }
   | { ok: false; error: string };
