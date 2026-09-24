@@ -134,7 +134,8 @@ const onDrop = (event: DragEvent) => {
             target="_blank"
             rel="noopener noreferrer"
           >{{ filename }}</a>
-          <span class="attach-size">{{ formatFileSize(props.item.attachmentsMetadata[filename]?.size ?? 0) }}</span>
+          <span
+            class="attach-size">{{ formatFileSize(props.item.attachmentsMetadata[filename]?.size ?? 0) }}</span>
           <button
             type="button"
             class="attach-copy"

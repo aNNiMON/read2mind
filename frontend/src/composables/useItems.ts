@@ -145,7 +145,10 @@ export default function useItems() {
 
   const replaceItem = (path: string, update: (item: Item) => Item) => {
     const index = items.value.findIndex((i) => i.path === path);
-    if (index === -1) return;
+    if (index === -1) {
+      if (selected.value?.path === path) selected.value = update(selected.value);
+      return;
+    }
 
     const updated = update(items.value[index]);
     items.value = [
@@ -267,11 +270,21 @@ export default function useItems() {
     selected.value = item;
   };
 
-  // Keep the selection in sync with the (possibly reloaded) list; drop it if gone.
+  // A routed item can be outside the current page or filters.
   watch(items, (list) => {
     if (!selected.value) return;
-    selected.value = list.find((a) => a.path === selected.value?.path) ?? null;
+    selected.value = list.find((a) => a.path === selected.value?.path) ?? selected.value;
   });
+
+  const findItem = async (path: string): Promise<Item | null> => {
+    const cached = items.value.find((item) => item.path === path);
+    if (cached) return cached;
+
+    const response = await itemsApi.getItem(path);
+    if (response.ok === true) return response.item;
+    if (response.status === 404) return null;
+    throw new Error(response.error);
+  };
 
   // Fetch attachments dynamically when selected item changes
   watch(selected, async (newItem) => {
@@ -309,6 +322,7 @@ export default function useItems() {
     activeStatus,
     selected,
     select,
+    findItem,
     reload: load,
     search,
     setKind,

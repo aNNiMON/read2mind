@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import type { Item, ItemKind } from "./api/Item";
 import useItems from "./composables/useItems";
+import useItemRoute from "./composables/useItemRoute";
 import "./composables/useSettings";
 import ItemList from "./components/ItemList.vue";
 import ItemView from "./components/ItemView.vue";
@@ -21,7 +22,7 @@ const {
   activeKind,
   activeStatus,
   selected,
-  select,
+  findItem,
   search,
   setKind,
   setStatus,
@@ -35,6 +36,8 @@ const {
   uploadAttachment,
 } = useItems();
 
+const { navigate, routeLoading, routeError } = useItemRoute(selected, findItem);
+
 const addKind = ref<ItemKind | null>(null);
 const showSettings = ref(false);
 const searchText = ref("");
@@ -43,7 +46,7 @@ const searchText = ref("");
 const drawerOpen = ref(false);
 
 const onSelect = (item: Item) => {
-  select(item);
+  navigate(item);
   drawerOpen.value = false;
 };
 
@@ -93,7 +96,12 @@ const clearAll = () => {
     @load-more="loadMore"
   />
 
+  <main v-if="routeLoading || routeError" class="route-message"
+    :role="routeError ? 'alert' : 'status'">
+    {{ routeError || "Opening item…" }}
+  </main>
   <ItemView
+    v-else
     :item="selected"
     :all-tags="allTags"
     :load-tags="loadTags"
@@ -117,6 +125,12 @@ const clearAll = () => {
 </template>
 
 <style scoped>
+.route-message {
+  flex: 1;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
 /* Floating hamburger, only shown on mobile where the list is a drawer. */
 .drawer-toggle {
   display: none;

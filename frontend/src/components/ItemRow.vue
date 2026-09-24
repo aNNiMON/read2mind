@@ -3,6 +3,17 @@ import { computed } from "vue";
 import type { Item } from "../api/Item";
 import { kindMeta, statusMeta } from "../api/meta";
 import { formatDate } from "../utils/format";
+import { itemUrl } from "../utils/itemRoute";
+
+const emit = defineEmits<{ (e: "click", event: MouseEvent): void }>();
+
+const onClick = (event: MouseEvent) => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    return;
+  }
+  event.preventDefault();
+  emit("click", event);
+};
 
 const props = defineProps<{
   item: Item;
@@ -14,7 +25,7 @@ const status = computed(() => statusMeta(props.item.status ?? "new"));
 </script>
 
 <template>
-  <button class="list-item" :class="{ active }" type="button">
+  <a class="list-item" :class="{ active }" :href="itemUrl(item.path)" @click="onClick">
     <div class="list-item-meta">
       <span class="list-item-time">
         <span
@@ -37,11 +48,13 @@ const status = computed(() => statusMeta(props.item.status ?? "new"));
     <div v-if="item.tags.length" class="list-item-tags">
       <span v-for="tag in item.tags" :key="tag" class="tag">{{ tag }}</span>
     </div>
-  </button>
+  </a>
 </template>
 
 <style scoped>
 .list-item {
+  box-sizing: border-box;
+  text-decoration: none;
   display: block;
   width: 100%;
   text-align: left;
