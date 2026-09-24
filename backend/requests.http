@@ -4,6 +4,10 @@
 # @name List items
 GET {{base.url}}/api/items
 
+### Get item by path
+# @name Get item by path
+GET {{base.url}}/api/items/20260625 WezTerm projects selector
+
 ### List articles only
 # @name List articles only
 GET {{base.url}}/api/items?kind=article
