@@ -19,15 +19,15 @@
   },
   "imports": {
     "@vue/tsconfig": "npm:@vue/tsconfig@^0.9.1",
-    "unplugin-icons": "npm:unplugin-icons@^23.0.1",
-    "vue": "npm:vue@^3.5.40",
-    "marked": "npm:marked@^18.0.7",
-    "dompurify": "npm:dompurify@^3.4.12",
+    "unplugin-icons": "npm:unplugin-icons@^24.0.0",
+    "vue": "npm:vue@^3.5.43",
+    "marked": "npm:marked@^18.0.14",
+    "dompurify": "npm:dompurify@^3.4.16",
     "markmap-lib": "npm:markmap-lib@^0.18.12",
     "markmap-view": "npm:markmap-view@^0.18.12",
-    "vite": "npm:vite@^8.1.5",
-    "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@^6.0.8",
-    "unplugin-icons/vite": "npm:unplugin-icons@^23.0.1/vite",
-    "@iconify-json/lucide": "npm:@iconify-json/lucide@^1.2.120"
+    "vite": "npm:vite@^8.3.0",
+    "@vitejs/plugin-vue": "npm:@vitejs/plugin-vue@^6.0.9",
+    "unplugin-icons/vite": "npm:unplugin-icons@^24.0.0/vite",
+    "@iconify-json/lucide": "npm:@iconify-json/lucide@^1.2.136"
   }
 }
