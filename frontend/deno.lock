@@ -10,7 +10,7 @@
     "npm:markmap-lib@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:markmap-view@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:unplugin-icons@24": "24.0.0_vite@8.3.0",
-    "npm:vite@^8.3.0": "8.3.0",
+    "npm:vite@*": "8.3.0",
     "npm:vue-tsc@*": "3.3.6_typescript@6.0.3",
     "npm:vue@^3.5.43": "3.5.43_typescript@6.0.3"
   },

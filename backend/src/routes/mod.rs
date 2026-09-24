@@ -4,6 +4,7 @@ pub mod config_ai;
 pub mod create_item;
 pub mod delete_attachment;
 pub mod delete_item;
+pub mod get_item;
 pub mod health;
 pub mod list_attachments;
 pub mod list_items;

@@ -8,6 +8,7 @@ import type {
   DeleteAttachmentResp,
   DeleteItemResp,
   GenerateAiResp,
+  GetItemResp,
   Item,
   ItemQuery,
   ItemResp,
@@ -118,6 +119,34 @@ export default class ItemsApi {
       return {
         ok: false,
         error: error instanceof Error ? error.message : "Failed to fetch items.",
+      };
+    }
+  }
+
+  async getItem(path: string): Promise<GetItemResp> {
+    try {
+      const itemPath = normalizeItemPath(path);
+      const response = await this.apiCall(
+        `/api/items/${encodePath(itemPath)}`,
+        "GET",
+      );
+
+      if (response.ok) {
+        const item = (await response.json()) as Item;
+        item.name = item.name ?? item.title ?? "Untitled";
+        item.assets = item.assets ?? [];
+        return { ok: true, item };
+      }
+
+      return {
+        ok: false,
+        status: response.status,
+        error: `Failed to fetch item. ${await response.text()}`,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : "Failed to fetch item.",
       };
     }
   }
