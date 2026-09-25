@@ -7,7 +7,8 @@ pub async fn handler(
     State(state): State<AppState>,
     Path(path): Path<String>,
 ) -> Result<StatusCode, AppError> {
-    state.storage.delete_item(&path)?;
+    let mut storage = state.storage.write()?;
+    storage.delete_item(&path)?;
     db_index::delete_item(&state.db, &path)?;
     Ok(StatusCode::OK)
 }

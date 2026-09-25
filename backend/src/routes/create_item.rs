@@ -107,10 +107,12 @@ pub async fn handler(
         }
     };
 
+    let mut storage = state.storage.write()?;
+
     // Save metadata.json
-    let dir_path = state.storage.item_full_path(&created_at, &m.title);
-    let path = state.storage.item_path(&created_at, &m.title);
-    match state.storage.read_metadata(&path) {
+    let dir_path = storage.item_full_path(&created_at, &m.title);
+    let path = storage.item_path(&created_at, &m.title);
+    match storage.read_metadata(&path) {
         Ok(_) => {
             return Err(AppError::InvalidRequest(
                 "An item with this path already exists".into(),
@@ -119,26 +121,32 @@ pub async fn handler(
         Err(AppError::NotFound(_)) => {}
         Err(error) => return Err(error),
     }
-    state.storage.save_metadata_by_dir(&m, &dir_path)?;
+    storage.save_metadata_by_dir(&m, &dir_path)?;
 
     // Save file with item content
     if let Some(content) = content {
-        state.storage.save_content(&content, &dir_path)?;
+        storage.save_content(&content, &dir_path)?;
     }
 
     // Download in background
     for (filename, job) in downloads {
         let storage = state.storage.clone();
-        let dir_path = dir_path.clone();
+        let path = path.clone();
         tokio::spawn(async move {
             if let Ok(cursor) = job.run().await {
-                let _ = storage.copy_from_cursor(cursor, &dir_path, filename);
+                // A rename or deletion while downloading invalidates the old path.
+                if let Ok(mut storage) = storage.write()
+                    && storage.read_metadata(&path).is_ok()
+                {
+                    let _ =
+                        storage.save_attachment_by_item_path(&path, filename, &cursor.into_inner());
+                }
             }
         });
     }
 
     // Create item and update index
-    let path = state.storage.item_path(&created_at, &m.title);
+    let path = storage.item_path(&created_at, &m.title);
     let item = Item::from_metadata(m, path);
     db_index::add_item(&state.db, &item)?;
 

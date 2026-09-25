@@ -52,6 +52,7 @@ pub async fn handler(
     State(state): State<AppState>,
     Query(query): Query<ListItemsRequest>,
 ) -> Result<Json<ListItemsResponse>, AppError> {
+    let _storage = state.storage.read()?;
     let (items, total) = db_index::load_items(&state.db, &query.into())?;
     Ok(Json(ListItemsResponse { items, total }))
 }

@@ -36,17 +36,20 @@ pub async fn handler(
         .as_ref()
         .ok_or_else(|| AppError::ConfigError("AI features are not enabled".to_owned()))?;
 
-    let metadata = state.storage.read_metadata(&path)?;
-    let filename = match metadata.kind {
-        ItemKind::Article | ItemKind::Video => CONTENT_FILE_NAME,
-        _ => {
-            return Err(AppError::InvalidRequest(
-                "Item does not support AI processing".to_owned(),
-            ));
-        }
-    };
+    let content = {
+        let storage = state.storage.read()?;
+        let metadata = storage.read_metadata(&path)?;
+        let filename = match metadata.kind {
+            ItemKind::Article | ItemKind::Video => CONTENT_FILE_NAME,
+            _ => {
+                return Err(AppError::InvalidRequest(
+                    "Item does not support AI processing".to_owned(),
+                ));
+            }
+        };
 
-    let content = state.storage.read_attachment(&path, filename)?;
+        storage.read_attachment(&path, filename)?
+    };
     let (filename, result) = match req.feature {
         AiFeature::Summary => (
             SUMMARY_FILE_NAME,
@@ -62,14 +65,13 @@ pub async fn handler(
         ),
     };
 
+    let mut storage = state.storage.write()?;
     let mut status = "skipped".to_owned();
-    let mut metadata = state.storage.read_metadata(&path)?;
+    let mut metadata = storage.read_metadata(&path)?;
     if let Some(text) = result {
-        state
-            .storage
-            .save_attachment_by_item_path(&path, filename, text.as_bytes())?;
+        storage.save_attachment_by_item_path(&path, filename, text.as_bytes())?;
         metadata.updated_at = Some(Local::now().to_rfc3339_opts(SecondsFormat::Secs, true));
-        state.storage.save_metadata(&metadata, &path)?;
+        storage.save_metadata(&metadata, &path)?;
         "success".clone_into(&mut status);
     }
 

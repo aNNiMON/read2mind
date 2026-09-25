@@ -49,6 +49,7 @@ pub async fn handler(
     State(state): State<AppState>,
     Path(path): Path<String>,
 ) -> Result<Json<AttachmentsResponse>, AppError> {
-    let att = state.storage.list_attachments(&path)?;
+    let storage = state.storage.read()?;
+    let att = storage.list_attachments(&path)?;
     Ok(Json(att.into()))
 }

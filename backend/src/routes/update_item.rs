@@ -26,13 +26,14 @@ pub async fn handler(
     Path(path): Path<String>,
     Json(req): Json<UpdateItemRequest>,
 ) -> Result<Json<Item>, AppError> {
-    let metadata = state.storage.read_metadata(&path)?;
+    let mut storage = state.storage.write()?;
+    let metadata = storage.read_metadata(&path)?;
 
     let created_at = validate::validate_datetime(Some(req.created_at))?;
     let title = get_non_empty_title(Some(req.title), Some(metadata.title));
 
     // determine if new path is different from old path
-    let new_path = state.storage.item_path(&created_at, &title);
+    let new_path = storage.item_path(&created_at, &title);
     let new_metadata = ItemMetadata {
         title,
         created_at: created_at.to_rfc3339_opts(SecondsFormat::Secs, true),
@@ -41,14 +42,14 @@ pub async fn handler(
         ..metadata
     };
     let item = if path == new_path {
-        state.storage.save_metadata(&new_metadata, &path)?;
+        storage.save_metadata(&new_metadata, &path)?;
         // Update index
         let item = Item::from_metadata(new_metadata, new_path);
         db_index::add_item(&state.db, &item)?;
         item
     } else {
-        state.storage.rename_item(&path, &new_path)?;
-        state.storage.save_metadata(&new_metadata, &new_path)?;
+        storage.rename_item(&path, &new_path)?;
+        storage.save_metadata(&new_metadata, &new_path)?;
         // Update index
         let item = Item::from_metadata(new_metadata, new_path);
         db_index::delete_item(&state.db, &path)?;

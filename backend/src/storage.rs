@@ -1,11 +1,10 @@
 use std::{
     collections::HashMap,
-    fs::{self, File},
-    io::{Cursor, Write},
+    fs,
     path::PathBuf,
+    sync::{RwLock, RwLockReadGuard, RwLockWriteGuard},
 };
 
-use axum::body::Bytes;
 use chrono::{DateTime, Datelike, Local};
 use glob::glob;
 
@@ -21,7 +20,31 @@ use crate::{
 const MAX_FOLDER_LENGTH: usize = 120;
 
 pub struct Storage {
+    inner: RwLock<StorageData>,
+}
+
+pub struct StorageData {
     data_dir: PathBuf,
+}
+
+impl Storage {
+    pub fn new(data_dir: PathBuf) -> Self {
+        Self {
+            inner: RwLock::new(StorageData { data_dir }),
+        }
+    }
+
+    pub fn read(&self) -> Result<RwLockReadGuard<'_, StorageData>, AppError> {
+        self.inner
+            .read()
+            .map_err(|e| AppError::FsError(format!("storage lock: {e}")))
+    }
+
+    pub fn write(&self) -> Result<RwLockWriteGuard<'_, StorageData>, AppError> {
+        self.inner
+            .write()
+            .map_err(|e| AppError::FsError(format!("storage lock: {e}")))
+    }
 }
 
 #[derive(Debug)]
@@ -35,11 +58,7 @@ pub struct AttachmentsList {
     pub attachments: HashMap<String, AttachmentMeta>,
 }
 
-impl Storage {
-    pub fn new(data_dir: PathBuf) -> Self {
-        Self { data_dir }
-    }
-
+impl StorageData {
     /// Build the item's directory name `YYYYMMDD <sanitized title>`
     pub fn item_path(&self, dt: &DateTime<Local>, title: &str) -> String {
         let sanitized = Self::sanitize_title(title);
@@ -92,14 +111,18 @@ impl Storage {
     }
 
     /// Save metadata.json file
-    pub fn save_metadata(&self, metadata: &ItemMetadata, item_path: &str) -> Result<(), AppError> {
+    pub fn save_metadata(
+        &mut self,
+        metadata: &ItemMetadata,
+        item_path: &str,
+    ) -> Result<(), AppError> {
         let dir = self.item_dir(item_path)?;
         self.save_metadata_by_dir(metadata, &dir)
     }
 
     /// Save metadata.json file by date and title
     pub fn save_metadata_by_date_and_title(
-        &self,
+        &mut self,
         metadata: &ItemMetadata,
         dt: &DateTime<Local>,
         title: &str,
@@ -110,7 +133,7 @@ impl Storage {
 
     /// Save metadata.json file by directory
     pub fn save_metadata_by_dir(
-        &self,
+        &mut self,
         metadata: &ItemMetadata,
         dir: &PathBuf,
     ) -> Result<(), AppError> {
@@ -124,7 +147,7 @@ impl Storage {
     }
 
     /// Rename item directory
-    pub fn rename_item(&self, old_path: &str, new_path: &str) -> Result<(), AppError> {
+    pub fn rename_item(&mut self, old_path: &str, new_path: &str) -> Result<(), AppError> {
         let old_dir = self.item_dir(old_path)?;
         if !old_dir.exists() {
             return Err(AppError::NotFound(format!("Item not found: {old_path}")));
@@ -142,7 +165,7 @@ impl Storage {
     }
 
     /// Delete item directory
-    pub fn delete_item(&self, item_path: &str) -> Result<(), AppError> {
+    pub fn delete_item(&mut self, item_path: &str) -> Result<(), AppError> {
         let dir = self.item_dir(item_path)?;
         if !dir.exists() {
             return Err(AppError::NotFound(format!("Item not found: {item_path}")));
@@ -192,7 +215,7 @@ impl Storage {
 
     /// Save attachment file
     pub fn save_attachment_by_item_path(
-        &self,
+        &mut self,
         item_path: &str,
         filename: &str,
         bytes: &[u8],
@@ -203,7 +226,7 @@ impl Storage {
 
     /// Save attachment file
     pub fn save_attachment(
-        &self,
+        &mut self,
         dir: &PathBuf,
         filename: &str,
         bytes: &[u8],
@@ -215,34 +238,18 @@ impl Storage {
         Ok(())
     }
 
-    /// Copy attachment file from cursor
-    pub fn copy_from_cursor(
-        &self,
-        cursor: Cursor<Bytes>,
-        dir: &PathBuf,
-        filename: &str,
-    ) -> Result<(), AppError> {
-        Self::create_dir(dir)?;
-        let path = dir.join(filename);
-        let mut file = File::create(&path)
-            .map_err(|e| AppError::FsError(format!("Failed to create {filename}: {e}")))?;
-        file.write_all(&cursor.into_inner())
-            .map_err(|e| AppError::FsError(format!("Failed to write {filename}: {e}")))?;
-        Ok(())
-    }
-
     /// Save content.md file
-    pub fn save_content(&self, content: &str, dir: &PathBuf) -> Result<(), AppError> {
+    pub fn save_content(&mut self, content: &str, dir: &PathBuf) -> Result<(), AppError> {
         self.save_attachment(dir, CONTENT_FILE_NAME, content.as_bytes())
     }
 
     /// Save banner
-    pub fn save_banner(&self, bytes: &[u8], dir: &PathBuf) -> Result<(), AppError> {
+    pub fn save_banner(&mut self, bytes: &[u8], dir: &PathBuf) -> Result<(), AppError> {
         self.save_attachment(dir, BANNER_FILE_NAME, bytes)
     }
 
     /// Delete attachment file
-    pub fn delete_attachment(&self, item_path: &str, name: &str) -> Result<(), AppError> {
+    pub fn delete_attachment(&mut self, item_path: &str, name: &str) -> Result<(), AppError> {
         let path = self.item_dir(item_path)?.join(name);
         if !path.exists() {
             return Err(AppError::NotFound(format!(

@@ -15,7 +15,8 @@ impl<'a> BuildIndexJob<'a> {
     }
 
     pub fn run(&self) -> Result<(), AppError> {
-        let items = self.storage.list_items()?;
+        let storage = self.storage.read()?;
+        let items = storage.list_items()?;
         println!("Indexing {} item(s)", items.len());
         db_index::add_items(self.db, &items)
     }

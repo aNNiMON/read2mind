@@ -21,15 +21,14 @@ pub async fn handler(
 ) -> Result<Json<AddAttachmentResponse>, AppError> {
     let (filename, file_bytes) = parse_multipart(multipart).await?;
     let filename = validate::validate_attachment_filename(&filename)?;
-    let mut metadata = state.storage.read_metadata(&path)?;
+    let mut storage = state.storage.write()?;
+    let mut metadata = storage.read_metadata(&path)?;
 
-    state
-        .storage
-        .save_attachment_by_item_path(&path, filename, &file_bytes)?;
+    storage.save_attachment_by_item_path(&path, filename, &file_bytes)?;
 
     // Update index
     metadata.updated_at = Some(Local::now().to_rfc3339_opts(SecondsFormat::Secs, true));
-    state.storage.save_metadata(&metadata, &path)?;
+    storage.save_metadata(&metadata, &path)?;
     let item = Item::from_metadata(metadata, path);
     db_index::add_item(&state.db, &item)?;
 

@@ -9,6 +9,7 @@ pub async fn handler(
     State(state): State<AppState>,
     Path(path): Path<String>,
 ) -> Result<Json<Item>, AppError> {
-    let metadata = state.storage.read_metadata(&path)?;
+    let storage = state.storage.read()?;
+    let metadata = storage.read_metadata(&path)?;
     Ok(Json(Item::from_metadata(metadata, path)))
 }

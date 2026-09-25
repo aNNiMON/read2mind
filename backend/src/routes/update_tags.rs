@@ -19,10 +19,11 @@ pub async fn handler(
 ) -> Result<Json<Item>, AppError> {
     let tags = validate::validate_tags(req.tags.as_deref())?;
 
-    let mut metadata = state.storage.read_metadata(&path)?;
+    let mut storage = state.storage.write()?;
+    let mut metadata = storage.read_metadata(&path)?;
     metadata.tags = tags;
     metadata.updated_at = Some(Local::now().to_rfc3339_opts(SecondsFormat::Secs, true));
-    state.storage.save_metadata(&metadata, &path)?;
+    storage.save_metadata(&metadata, &path)?;
 
     let item = Item::from_metadata(metadata, path);
     db_index::add_item(&state.db, &item)?;

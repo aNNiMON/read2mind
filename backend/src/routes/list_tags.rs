@@ -7,6 +7,7 @@ use crate::{AppState, db_index, error::AppError};
 pub async fn handler(
     State(state): State<AppState>,
 ) -> Result<Json<HashMap<String, usize>>, AppError> {
+    let _storage = state.storage.read()?;
     let tags = db_index::load_tags_by_freq(&state.db)?;
     Ok(Json(tags))
 }
