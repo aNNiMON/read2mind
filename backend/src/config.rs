@@ -3,6 +3,8 @@ use std::{fs, path::Path};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+use crate::model::item::{ItemKind, ItemStatus};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub bind_address: String,
@@ -10,6 +12,19 @@ pub struct Config {
     pub api_secret: Option<String>,
     #[serde(default)]
     pub ai: Option<AiConfig>,
+    #[serde(default)]
+    pub saved_search: Vec<SavedSearch>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SavedSearch {
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub search: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<ItemKind>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<ItemStatus>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,6 +51,7 @@ impl Default for Config {
             bind_address: "127.0.0.1:8555".to_owned(),
             api_secret: None,
             ai: Some(Default::default()),
+            saved_search: Vec::new(),
         }
     }
 }

@@ -4,6 +4,19 @@
 
 bind_address = "127.0.0.1:8555"
 
+# Saved searches are loaded once when the backend starts.
+# `search`, `kind`, and `status` are optional.
+[[saved_search]]
+name = "Planned Design articles"
+search = "#design after:2026-01-01"
+kind = "article"
+status = "planned"
+
+[[saved_search]]
+name = "Open tasks"
+kind = "task"
+
+
 [ai]
 base_url = "http://127.0.0.1:11434/v1"
 api_key_env = ""
