@@ -36,7 +36,7 @@ pub async fn handler(
         .as_ref()
         .ok_or_else(|| AppError::ConfigError("AI features are not enabled".to_owned()))?;
 
-    let mut metadata = state.storage.read_metadata(&path)?;
+    let metadata = state.storage.read_metadata(&path)?;
     let filename = match metadata.kind {
         ItemKind::Article | ItemKind::Video => CONTENT_FILE_NAME,
         _ => {
@@ -63,6 +63,7 @@ pub async fn handler(
     };
 
     let mut status = "skipped".to_owned();
+    let mut metadata = state.storage.read_metadata(&path)?;
     if let Some(text) = result {
         state
             .storage

@@ -162,7 +162,7 @@ impl Storage {
                 entry.map_err(|e| AppError::FsError(format!("Failed to read directory: {e}")))?;
             let fname = entry.file_name();
             let fname_str = fname.to_string_lossy();
-            let metadata = fs::metadata(&entry.path()).map_err(|e| {
+            let metadata = fs::metadata(entry.path()).map_err(|e| {
                 AppError::FsError(format!("Failed to get metadata for {fname_str}: {e}"))
             })?;
             attachments.insert(

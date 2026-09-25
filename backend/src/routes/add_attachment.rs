@@ -19,10 +19,9 @@ pub async fn handler(
     Path(path): Path<String>,
     multipart: Multipart,
 ) -> Result<Json<AddAttachmentResponse>, AppError> {
-    let mut metadata = state.storage.read_metadata(&path)?;
-
     let (filename, file_bytes) = parse_multipart(multipart).await?;
     let filename = validate::validate_attachment_filename(&filename)?;
+    let mut metadata = state.storage.read_metadata(&path)?;
 
     state
         .storage

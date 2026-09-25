@@ -19,13 +19,13 @@ pub fn validate_item(
     url: Option<&String>,
     content: Option<&String>,
 ) -> Result<(), AppError> {
-    if let Some(content) = content {
-        if content.len() > MAX_CONTENT_LEN {
-            return Err(AppError::InvalidRequest(format!(
-                "Content exceeds maximum length of {} MiB",
-                MAX_CONTENT_MB
-            )));
-        }
+    if let Some(content) = content
+        && content.len() > MAX_CONTENT_LEN
+    {
+        return Err(AppError::InvalidRequest(format!(
+            "Content exceeds maximum length of {} MiB",
+            MAX_CONTENT_MB
+        )));
     }
 
     match kind {

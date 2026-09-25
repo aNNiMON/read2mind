@@ -109,6 +109,16 @@ pub async fn handler(
 
     // Save metadata.json
     let dir_path = state.storage.item_full_path(&created_at, &m.title);
+    let path = state.storage.item_path(&created_at, &m.title);
+    match state.storage.read_metadata(&path) {
+        Ok(_) => {
+            return Err(AppError::InvalidRequest(
+                "An item with this path already exists".into(),
+            ));
+        }
+        Err(AppError::NotFound(_)) => {}
+        Err(error) => return Err(error),
+    }
     state.storage.save_metadata_by_dir(&m, &dir_path)?;
 
     // Save file with item content
