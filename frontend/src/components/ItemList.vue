@@ -170,7 +170,7 @@ const onAdd = (kind: ItemKind) => {
             class="search-input"
             type="search"
             placeholder="search"
-            aria-label="Search items by keyword or tag"
+            aria-label="Search items by keyword, tag, or author"
             autocomplete="off"
             @input="onSearchInput"
             @focus="suggestOpen = Boolean(activeTag)"

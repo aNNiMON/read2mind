@@ -105,6 +105,7 @@ export interface ItemQuery {
   kind?: ItemKind;
   status?: ItemStatus;
   keyword?: string;
+  author?: string;
   /** Date filter in `YYYY-MM-DD` format */
   after?: string;
   before?: string;

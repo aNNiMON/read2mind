@@ -7,6 +7,7 @@ export class SearchParser {
     let input = query.trim();
     input = this.parseTags(input, result);
     input = this.parseDate(input, result);
+    input = this.parseAuthor(input, result);
     input = input.replace(/\s+/g, " ").trim();
 
     if (input) result.keyword = input;
@@ -31,6 +32,24 @@ export class SearchParser {
     newInput += input.slice(end);
     if (tags.length > 0) result.tags = tags;
     if (excludeTags.length > 0) result.exclude = excludeTags;
+    return newInput.replace(/\s+/g, " ").trim();
+  }
+
+  // author:name author:"Author Name"
+  private parseAuthor(input: string, result: ItemQuery): string {
+    const authorPattern = /(?:^|\s)author:(?:"([^"]*)"|([^\s]+))/gi;
+    let author = "";
+    let end = 0;
+    let match = null;
+    let newInput = "";
+    while ((match = authorPattern.exec(input)) !== null) {
+      newInput += input.slice(end, match.index);
+      const value = (match[1] ?? match[2] ?? "").trim();
+      if (value) author = value;
+      end = authorPattern.lastIndex;
+    }
+    newInput += input.slice(end);
+    if (author) result.author = author;
     return newInput.replace(/\s+/g, " ").trim();
   }
 
