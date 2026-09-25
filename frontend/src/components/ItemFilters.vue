@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { ItemKind, ItemStatus } from "../api/Item";
+import type { ItemKind, ItemStatus, SavedSearch } from "../api/Item";
 import { kindMeta, KINDS, STATUSES, statusMeta } from "../api/meta";
 
 const props = defineProps<{
   kind: ItemKind | null;
   status: ItemStatus | null;
+  savedSearches: SavedSearch[];
+  activeSavedSearch: SavedSearch | null;
   hasSearch: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "kind", kind: ItemKind | null): void;
   (e: "status", status: ItemStatus | null): void;
+  (e: "savedSearch", savedSearch: SavedSearch): void;
   (e: "clear"): void;
 }>();
 
-type Panel = "kind" | "status" | null;
+type Panel = "kind" | "status" | "saved" | null;
 const open = ref<Panel>(null);
 
 const toggle = (panel: Panel) => {
@@ -29,7 +32,11 @@ const activeKindMeta = computed(() => kindMeta(props.kind));
 const activeStatusMeta = computed(() => statusMeta(props.status));
 
 const hasFilters = computed(
-  () => props.hasSearch || props.kind !== null || props.status !== null,
+  () =>
+    props.hasSearch ||
+    props.kind !== null ||
+    props.status !== null ||
+    props.activeSavedSearch !== null,
 );
 
 const onKind = (kind: ItemKind | null) => {
@@ -38,6 +45,10 @@ const onKind = (kind: ItemKind | null) => {
 };
 const onStatus = (status: ItemStatus | null) => {
   emit("status", status);
+  close();
+};
+const onSavedSearch = (savedSearch: SavedSearch) => {
+  emit("savedSearch", savedSearch);
   close();
 };
 </script>
@@ -112,6 +123,29 @@ const onStatus = (status: ItemStatus | null) => {
       </ul>
     </div>
 
+    <!-- Saved search -->
+    <div class="filter">
+      <button
+        type="button"
+        class="chip"
+        :class="{ active: activeSavedSearch !== null }"
+        :disabled="savedSearches.length === 0"
+        aria-haspopup="menu"
+        :aria-expanded="open === 'saved'"
+        @click="toggle('saved')"
+      >
+        {{ activeSavedSearch?.name ?? "Saved" }}
+        <span class="caret">▾</span>
+      </button>
+      <ul v-if="open === 'saved'" class="menu" role="menu">
+        <li v-for="savedSearch in savedSearches" :key="savedSearch.name">
+          <button type="button" role="menuitem" @click="onSavedSearch(savedSearch)">
+            {{ savedSearch.name }}
+          </button>
+        </li>
+      </ul>
+    </div>
+
     <a
       v-if="hasFilters"
       class="clear-all"
@@ -153,6 +187,10 @@ const onStatus = (status: ItemStatus | null) => {
 }
 .chip:hover {
   border-color: var(--accent-border);
+}
+.chip:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 .chip.active {
   border-color: var(--accent);

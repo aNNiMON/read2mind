@@ -11,6 +11,7 @@ import type {
   ItemKind,
   ItemQuery,
   ItemStatus,
+  SavedSearch,
   TagFreq,
   UpdateItemPayload,
   UpdateItemResp,
@@ -34,6 +35,8 @@ export default function useItems() {
   const searchQuery = ref<ItemQuery>({});
   const activeKind = ref<ItemKind | null>(null);
   const activeStatus = ref<ItemStatus | null>(null);
+  const savedSearches = ref<SavedSearch[]>([]);
+  const activeSavedSearch = ref<SavedSearch | null>(null);
   // All known tag names, sorted by descending usage count. Feeds the tags editor's suggestions.
   const allTags = ref<TagFreq[]>([]);
 
@@ -44,6 +47,11 @@ export default function useItems() {
         .sort((a, b) => b[1] - a[1])
         .map(([tag, count]) => ({ name: tag, count }));
     }
+  };
+
+  const loadSavedSearches = async () => {
+    const response = await itemsApi.getSavedSearches();
+    if (response.ok) savedSearches.value = response.savedSearches;
   };
 
   const load = async () => {
@@ -99,24 +107,40 @@ export default function useItems() {
   };
 
   const search = (input: string) => {
+    activeSavedSearch.value = null;
     searchQuery.value = searchParser.parseQuery(input);
     return load();
   };
 
   const setKind = (kind: ItemKind | null) => {
+    activeSavedSearch.value = null;
     activeKind.value = kind;
     return load();
   };
 
   const setStatus = (status: ItemStatus | null) => {
+    activeSavedSearch.value = null;
     activeStatus.value = status;
     return load();
+  };
+
+  const selectSavedSearch = (savedSearch: SavedSearch) => {
+    activeSavedSearch.value = savedSearch;
+    searchQuery.value = searchParser.parseQuery(savedSearch.search ?? "");
+    activeKind.value = savedSearch.kind ?? null;
+    activeStatus.value = savedSearch.status ?? null;
+    return load();
+  };
+
+  const clearActiveSavedSearch = () => {
+    activeSavedSearch.value = null;
   };
 
   const clearFilters = () => {
     searchQuery.value = {};
     activeKind.value = null;
     activeStatus.value = null;
+    activeSavedSearch.value = null;
     return load();
   };
 
@@ -307,6 +331,7 @@ export default function useItems() {
 
   load();
   loadTags();
+  loadSavedSearches();
 
   return {
     items,
@@ -320,6 +345,8 @@ export default function useItems() {
     loadTags,
     activeKind,
     activeStatus,
+    savedSearches,
+    activeSavedSearch,
     selected,
     select,
     findItem,
@@ -327,6 +354,8 @@ export default function useItems() {
     search,
     setKind,
     setStatus,
+    selectSavedSearch,
+    clearActiveSavedSearch,
     clearFilters,
     addItem,
     updateItem,

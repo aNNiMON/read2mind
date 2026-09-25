@@ -12,6 +12,8 @@ import type {
   Item,
   ItemQuery,
   ItemResp,
+  SavedSearch,
+  SavedSearchResp,
   TagsResp,
   UpdateItemPayload,
   UpdateItemResp,
@@ -402,6 +404,27 @@ export default class ItemsApi {
       return {
         ok: false,
         error: error instanceof Error ? error.message : "Failed to fetch tags.",
+      };
+    }
+  }
+
+  async getSavedSearches(): Promise<SavedSearchResp> {
+    try {
+      const response = await this.apiCall("/api/saved_search", "GET");
+
+      if (response.ok) {
+        const savedSearches = (await response.json()) as SavedSearch[];
+        return { ok: true, savedSearches };
+      }
+
+      return {
+        ok: false,
+        error: `Failed to fetch saved searches. ${await response.text()}`,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : "Failed to fetch saved searches.",
       };
     }
   }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { Item, ItemKind, ItemStatus, TagFreq } from "../api/Item";
+import type { Item, ItemKind, ItemStatus, SavedSearch, TagFreq } from "../api/Item";
 import { KINDS } from "../api/meta";
 import ItemRow from "./ItemRow.vue";
 import ItemFilters from "./ItemFilters.vue";
@@ -17,6 +17,8 @@ const props = defineProps<{
   selected: Item | null;
   kind: ItemKind | null;
   status: ItemStatus | null;
+  savedSearches: SavedSearch[];
+  activeSavedSearch: SavedSearch | null;
   searchText: string;
   allTags?: TagFreq[];
 }>();
@@ -29,6 +31,7 @@ const emit = defineEmits<{
   (e: "add", kind: ItemKind): void;
   (e: "kind", kind: ItemKind | null): void;
   (e: "status", status: ItemStatus | null): void;
+  (e: "savedSearch", savedSearch: SavedSearch): void;
   (e: "clear"): void;
   (e: "load-more"): void;
 }>();
@@ -227,9 +230,12 @@ const onAdd = (kind: ItemKind) => {
       <ItemFilters
         :kind="kind"
         :status="status"
+        :saved-searches="savedSearches"
+        :active-saved-search="activeSavedSearch"
         :has-search="Boolean(query.trim())"
         @kind="emit('kind', $event)"
         @status="emit('status', $event)"
+        @saved-search="emit('savedSearch', $event)"
         @clear="emit('clear')"
       />
     </header>

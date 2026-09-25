@@ -77,6 +77,17 @@ export type TagsResp =
 
 export type TagFreq = { name: string; count: number };
 
+export interface SavedSearch {
+  name: string;
+  search?: string;
+  kind?: ItemKind;
+  status?: ItemStatus;
+}
+
+export type SavedSearchResp =
+  | { ok: true; savedSearches: SavedSearch[] }
+  | { ok: false; error: string };
+
 export type UpdateStatusResp = { ok: true } | { ok: false; error: string };
 
 export interface UpdateItemPayload {

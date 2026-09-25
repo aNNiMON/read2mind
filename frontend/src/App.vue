@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { Item, ItemKind } from "./api/Item";
+import type { Item, ItemKind, SavedSearch } from "./api/Item";
 import useItems from "./composables/useItems";
 import useItemRoute from "./composables/useItemRoute";
 import "./composables/useSettings";
@@ -21,11 +21,15 @@ const {
   loadTags,
   activeKind,
   activeStatus,
+  savedSearches,
+  activeSavedSearch,
   selected,
   findItem,
   search,
   setKind,
   setStatus,
+  selectSavedSearch,
+  clearActiveSavedSearch,
   clearFilters,
   addItem,
   updateItem,
@@ -53,6 +57,16 @@ const onSelect = (item: Item) => {
 const searchByTag = (value: string) => {
   searchText.value = value;
   search(value);
+};
+
+const onSearchTextUpdate = (value: string) => {
+  searchText.value = value;
+  clearActiveSavedSearch();
+};
+
+const onSavedSearch = (savedSearch: SavedSearch) => {
+  searchText.value = savedSearch.search ?? "";
+  selectSavedSearch(savedSearch);
 };
 
 const clearAll = () => {
@@ -83,15 +97,18 @@ const clearAll = () => {
     :selected="selected"
     :kind="activeKind"
     :status="activeStatus"
+    :saved-searches="savedSearches"
+    :active-saved-search="activeSavedSearch"
     :search-text="searchText"
     :all-tags="allTags"
     @select="onSelect"
     @settings="showSettings = true"
     @add="addKind = $event"
     @search="search"
-    @update:search-text="searchText = $event"
+    @update:search-text="onSearchTextUpdate"
     @kind="setKind"
     @status="setStatus"
+    @saved-search="onSavedSearch"
     @clear="clearAll"
     @load-more="loadMore"
   />
