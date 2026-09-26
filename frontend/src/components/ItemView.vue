@@ -14,6 +14,7 @@ import type {
 import { type ContentTab, kindHasNote, tabsForKind } from "../api/contentTypes";
 import { STATUSES } from "../api/meta";
 import { formatDate } from "../utils/format";
+import { itemUrl } from "../utils/itemRoute";
 import ContentTabs from "./ContentTabs.vue";
 import ContentViewer from "./ContentViewer.vue";
 import NoteEditor from "./NoteEditor.vue";
@@ -206,13 +207,21 @@ const removeTag = (tag: string) => {
   persistTags(props.item.tags.filter((t) => t !== tag));
 };
 
-// Item menu (top-right "..." button): delete for now.
+// Item menu
 const menuOpen = ref(false);
 const deleting = ref(false);
 const deleteError = ref<string | null>(null);
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;
+};
+
+const copyUrl = async () => {
+  const item = props.item;
+  if (!item) return;
+
+  await navigator.clipboard.writeText(`[${item.title ?? item.name}](${itemUrl(item.path)})`);
+  menuOpen.value = false;
 };
 
 const confirmDelete = async () => {
@@ -320,7 +329,7 @@ const onUploaded = () => {
               </ul>
             </div>
 
-            <span v-if="authorName" >
+            <span v-if="authorName">
               by
               <span class="author-link" title="Search by author" @click="searchByAuthor">
                 {{ authorName }}
@@ -340,6 +349,16 @@ const onUploaded = () => {
               </button>
 
               <ul v-if="menuOpen" class="item-menu-list" role="menu">
+                <li>
+                  <button
+                    type="button"
+                    class="item-menu-option"
+                    role="menuitem"
+                    @click="copyUrl"
+                  >
+                    Copy url
+                  </button>
+                </li>
                 <li>
                   <button
                     type="button"
