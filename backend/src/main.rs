@@ -9,7 +9,7 @@ use std::{env, fs};
 use tokio::net::TcpListener;
 #[cfg(debug_assertions)]
 use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::layer::SubscriberExt as _;
 use tracing_subscriber::util::SubscriberInitExt as _;
@@ -104,7 +104,7 @@ async fn run_app() -> Result<(), Box<dyn std::error::Error>> {
             get(routes::secret_validate::handler).route_layer(auth_layer),
         )
         .nest_service("/data", ServeDir::new(&data_dir))
-        .fallback_service(ServeDir::new("./public"))
+        .fallback_service(ServeDir::new("./public").fallback(ServeFile::new("./public/index.html")))
         .layer(DefaultBodyLimit::max(validate::MAX_BODY_SIZE));
 
     #[cfg(debug_assertions)]
