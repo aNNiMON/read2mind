@@ -43,6 +43,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "search-by-tag", value: string): void;
+  (e: "search-by-author", value: string): void;
 }>();
 
 const statusLabel = (status: ItemStatus | undefined) =>
@@ -116,6 +117,16 @@ const startResize = (event: MouseEvent) => {
 const searchByTag = (tag: string) => {
   const searchTag = /\s/.test(tag) ? `tag:"${tag}"` : `#${tag}`;
   emit("search-by-tag", searchTag);
+};
+
+const authorName = computed(() => props.item?.author?.trim() ?? "");
+
+const searchByAuthor = () => {
+  if (!authorName.value) return;
+  const author = /\s/.test(authorName.value)
+    ? `author:"${authorName.value}"`
+    : `author:${authorName.value}`;
+  emit("search-by-author", author);
 };
 
 onBeforeUnmount(stopResize);
@@ -308,6 +319,13 @@ const onUploaded = () => {
                 </li>
               </ul>
             </div>
+
+            <span v-if="authorName" >
+              by
+              <span class="author-link" title="Search by author" @click="searchByAuthor">
+                {{ authorName }}
+              </span>
+            </span>
 
             <div class="item-menu">
               <button
@@ -634,6 +652,18 @@ const onUploaded = () => {
 }
 .status-selector {
   position: relative;
+}
+.author-link {
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+}
+.author-link:hover,
+.author-link:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
 }
 .item-menu {
   position: relative;

@@ -54,7 +54,7 @@ const onSelect = (item: Item) => {
   drawerOpen.value = false;
 };
 
-const searchByTag = (value: string) => {
+const searchFromItem = (value: string) => {
   searchText.value = value;
   search(value);
 };
@@ -128,7 +128,8 @@ const clearAll = () => {
     :delete-item="deleteItem"
     :delete-attachment="deleteAttachment"
     :upload-attachment="uploadAttachment"
-    @search-by-tag="searchByTag"
+    @search-by-tag="searchFromItem"
+    @search-by-author="searchFromItem"
   />
 
   <AddItemModal
