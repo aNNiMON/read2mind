@@ -147,8 +147,9 @@ pub fn load_items(db: &DbIndex, filter: &ItemsFilter) -> Result<(Vec<Item>, usiz
             .collect::<Vec<_>>()
             .join(", ");
         filter_sql.push_str(&format!(
-            " AND path IN (SELECT path FROM tags t WHERE tag IN ({}))",
+            " AND path IN (SELECT path FROM tags t WHERE tag IN ({}) GROUP BY path HAVING COUNT(DISTINCT tag) = {})",
             placeholders,
+            filter.include_tags.len(),
         ));
         params.extend(
             filter
