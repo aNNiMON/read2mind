@@ -258,6 +258,25 @@ pub fn load_tags_by_freq(db: &DbIndex) -> Result<HashMap<String, usize>, AppErro
     Ok(tags)
 }
 
+pub fn load_authors_by_freq(db: &DbIndex) -> Result<HashMap<String, usize>, AppError> {
+    let conn = db
+        .lock()
+        .map_err(|e| AppError::DbError(format!("db index lock: {}", e)))?;
+    let mut stmt = conn
+        .prepare("SELECT author, count(*) FROM items WHERE author IS NOT NULL GROUP BY author")
+        .map_err(|e| AppError::DbError(format!("db index prepare authors: {}", e)))?;
+    let authors = stmt
+        .query_map([], |row| {
+            let author: String = row.get(0)?;
+            let count: isize = row.get(1)?;
+            Ok((author, count as usize))
+        })
+        .map_err(|e| AppError::DbError(format!("db index query authors: {}", e)))?
+        .collect::<Result<HashMap<_, _>, _>>()
+        .map_err(|e| AppError::DbError(format!("db index authors row: {}", e)))?;
+    Ok(authors)
+}
+
 fn load_tags(conn: &Connection, path: &str) -> Result<Vec<String>, AppError> {
     let mut stmt = conn
         .prepare("SELECT tag FROM tags WHERE path = ?1 ORDER BY tag")

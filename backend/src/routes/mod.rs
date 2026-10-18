@@ -7,6 +7,7 @@ pub mod delete_item;
 pub mod get_item;
 pub mod health;
 pub mod list_attachments;
+pub mod list_authors;
 pub mod list_items;
 pub mod list_tags;
 pub mod saved_search;

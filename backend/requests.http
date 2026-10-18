@@ -214,6 +214,10 @@ DELETE {{base.url}}/api/items/20260625 WezTerm projects selector/attachments/not
 # @name List tags
 GET {{base.url}}/api/tags
 
+### List authors
+# @name List authors
+GET {{base.url}}/api/authors
+
 ### Health
 # @name Health
 GET {{base.url}}/api/health

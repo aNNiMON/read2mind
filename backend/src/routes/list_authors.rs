@@ -1,0 +1,13 @@
+use std::collections::HashMap;
+
+use axum::{Json, extract::State};
+
+use crate::{AppState, db_index, error::AppError};
+
+pub async fn handler(
+    State(state): State<AppState>,
+) -> Result<Json<HashMap<String, usize>>, AppError> {
+    let _storage = state.storage.read()?;
+    let authors = db_index::load_authors_by_freq(&state.db)?;
+    Ok(Json(authors))
+}
