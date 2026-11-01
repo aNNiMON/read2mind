@@ -2,15 +2,16 @@
   "version": "5",
   "specifiers": {
     "npm:@iconify-json/lucide@^1.2.136": "1.2.136",
-    "npm:@vitejs/plugin-vue@^6.0.9": "6.0.9_vite@8.3.0_vue@3.5.43",
-    "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.43",
-    "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.43",
+    "npm:@vitejs/plugin-vue@^6.0.10": "6.0.10_vite@8.3.0_vue@3.5.43__typescript@6.0.3",
+    "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.43__typescript@6.0.3",
+    "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.43__typescript@6.0.3",
     "npm:dompurify@^3.4.16": "3.4.16",
     "npm:marked@^18.0.14": "18.0.14",
     "npm:markmap-lib@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:markmap-view@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:unplugin-icons@24": "24.0.0_vite@8.3.0",
     "npm:vite@*": "8.3.0",
+    "npm:vite@^8.3.0": "8.3.0",
     "npm:vue-tsc@*": "3.3.6_typescript@6.0.3",
     "npm:vue@^3.5.43": "3.5.43_typescript@6.0.3"
   },
@@ -186,8 +187,8 @@
     "@types/trusted-types@2.0.7": {
       "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
     },
-    "@vitejs/plugin-vue@6.0.9_vite@8.3.0_vue@3.5.43": {
-      "integrity": "sha512-rD/MORlhaZMlXWW0rEn4FB4wMinWC0z/D7Ye160S5+Rs1mC8ZDAdcDp4SjKfUhG5t8q1ktcPVw4xuTkPRlzrSA==",
+    "@vitejs/plugin-vue@6.0.10_vite@8.3.0_vue@3.5.43__typescript@6.0.3": {
+      "integrity": "sha512-b80aUQh3n+qEzzZm5oQp3rT2QImeCx58K6eFl/RkJ3d65KW0kTuv5lNsLRVAjbW9YRUpo/wzmvzMgV34bTAItA==",
       "dependencies": [
         "@rolldown/pluginutils",
         "vite",
@@ -300,7 +301,7 @@
     "@vue/shared@3.5.43": {
       "integrity": "sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q=="
     },
-    "@vue/tsconfig@0.9.1_vue@3.5.43": {
+    "@vue/tsconfig@0.9.1_vue@3.5.43__typescript@6.0.3": {
       "integrity": "sha512-buvjm+9NzLCJL29KY1j1991YYJ5e6275OiK+G4jtmfIb+z4POywbdm0wXusT9adVWqe0xqg70TbI7+mRx4uU9w==",
       "dependencies": [
         "typescript",
@@ -1095,7 +1096,7 @@
   "workspace": {
     "dependencies": [
       "npm:@iconify-json/lucide@^1.2.136",
-      "npm:@vitejs/plugin-vue@^6.0.9",
+      "npm:@vitejs/plugin-vue@^6.0.10",
       "npm:@vue/tsconfig@~0.9.1",
       "npm:dompurify@^3.4.16",
       "npm:marked@^18.0.14",
