@@ -2,15 +2,16 @@
   "version": "5",
   "specifiers": {
     "npm:@iconify-json/lucide@^1.2.136": "1.2.136",
-    "npm:@vitejs/plugin-vue@^6.0.9": "6.0.9_vite@8.3.0_vue@3.5.43",
-    "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.43",
-    "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.43",
+    "npm:@vitejs/plugin-vue@^6.0.9": "6.0.9_vite@8.3.0_vue@3.5.43__typescript@6.0.3",
+    "npm:@vue/tsconfig@*": "0.9.1_vue@3.5.43__typescript@6.0.3",
+    "npm:@vue/tsconfig@~0.9.1": "0.9.1_vue@3.5.43__typescript@6.0.3",
     "npm:dompurify@^3.4.16": "3.4.16",
-    "npm:marked@^18.0.14": "18.0.14",
+    "npm:marked@^18.1.2": "18.1.2",
     "npm:markmap-lib@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:markmap-view@~0.18.12": "0.18.12_markmap-common@0.18.9",
     "npm:unplugin-icons@24": "24.0.0_vite@8.3.0",
     "npm:vite@*": "8.3.0",
+    "npm:vite@^8.3.0": "8.3.0",
     "npm:vue-tsc@*": "3.3.6_typescript@6.0.3",
     "npm:vue@^3.5.43": "3.5.43_typescript@6.0.3"
   },
@@ -186,7 +187,7 @@
     "@types/trusted-types@2.0.7": {
       "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
     },
-    "@vitejs/plugin-vue@6.0.9_vite@8.3.0_vue@3.5.43": {
+    "@vitejs/plugin-vue@6.0.9_vite@8.3.0_vue@3.5.43__typescript@6.0.3": {
       "integrity": "sha512-rD/MORlhaZMlXWW0rEn4FB4wMinWC0z/D7Ye160S5+Rs1mC8ZDAdcDp4SjKfUhG5t8q1ktcPVw4xuTkPRlzrSA==",
       "dependencies": [
         "@rolldown/pluginutils",
@@ -300,7 +301,7 @@
     "@vue/shared@3.5.43": {
       "integrity": "sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q=="
     },
-    "@vue/tsconfig@0.9.1_vue@3.5.43": {
+    "@vue/tsconfig@0.9.1_vue@3.5.43__typescript@6.0.3": {
       "integrity": "sha512-buvjm+9NzLCJL29KY1j1991YYJ5e6275OiK+G4jtmfIb+z4POywbdm0wXusT9adVWqe0xqg70TbI7+mRx4uU9w==",
       "dependencies": [
         "typescript",
@@ -807,8 +808,8 @@
       ],
       "bin": true
     },
-    "marked@18.0.14": {
-      "integrity": "sha512-mBHK6FBHuBAlhgRe88w9F0O1AbwwXJUcQibUbC/QcdTbVGAD7aWza+xt3N6oT/jCZx3/OMeS+8rnuiHZcQ9s7A==",
+    "marked@18.1.2": {
+      "integrity": "sha512-DfOnvLAQ6WYeWxWO1u4RyFOeqyHup6dks5PPqnoFiooU7ipRvidO/2j8plhAHIiZg574E9ZlzSjUiPMLAzFkgg==",
       "bin": true
     },
     "markmap-common@0.18.9": {
@@ -1098,7 +1099,7 @@
       "npm:@vitejs/plugin-vue@^6.0.9",
       "npm:@vue/tsconfig@~0.9.1",
       "npm:dompurify@^3.4.16",
-      "npm:marked@^18.0.14",
+      "npm:marked@^18.1.2",
       "npm:markmap-lib@~0.18.12",
       "npm:markmap-view@~0.18.12",
       "npm:unplugin-icons@24",
