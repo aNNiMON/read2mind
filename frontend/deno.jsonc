@@ -20,7 +20,7 @@
   "imports": {
     "@vue/tsconfig": "npm:@vue/tsconfig@^0.9.1",
     "unplugin-icons": "npm:unplugin-icons@^24.0.0",
-    "vue": "npm:vue@^3.5.43",
+    "vue": "npm:vue@^3.5.44",
     "marked": "npm:marked@^18.0.14",
     "dompurify": "npm:dompurify@^3.4.16",
     "markmap-lib": "npm:markmap-lib@^0.18.12",
